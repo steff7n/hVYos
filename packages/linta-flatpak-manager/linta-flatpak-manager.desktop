@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Linta Flatpak Manager
+Comment=Browse, install, and manage Flatpak applications
+Exec=linta-flatpak-manager
+Icon=system-software-install
+Terminal=false
+Categories=System;PackageManager;
+Keywords=flatpak;flathub;software;install;

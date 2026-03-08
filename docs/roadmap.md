@@ -105,7 +105,7 @@ Phase 2 (needs lintactl theme-switch to test switching)
 
 ## Phase 5 — First-Boot Experience
 
-**Status:** In Progress
+**Status:** Complete
 
 ### Description
 
@@ -124,7 +124,7 @@ Phase 4 (needs themes to select from), Phase 2 (needs lintactl)
 
 ## Phase 6 — Flatpak Manager
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
@@ -142,7 +142,7 @@ Phase 4 (needs theme for styling)
 
 ## Phase 7 — Keybinding Reference
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
@@ -160,7 +160,7 @@ Phase 4 (needs theme)
 
 ## Phase 8 — TUI Installer
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
