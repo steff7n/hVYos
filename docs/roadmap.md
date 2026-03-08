@@ -68,7 +68,7 @@ Phase 1 (needs bootable ISO to test against)
 
 ## Phase 3 — NVIDIA Tool
 
-**Status:** In Progress
+**Status:** Complete
 
 ### Description
 
@@ -87,7 +87,7 @@ Phase 2
 
 ## Phase 4 — Visual Identity
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 

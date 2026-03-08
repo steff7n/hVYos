@@ -1,0 +1,19 @@
+{
+  "name": "Ember",
+  "description": "High-contrast dark theme — deep charcoal with burnt orange accents",
+  "profile": "niri",
+  "colors": {
+    "bg": "#181818",
+    "bg_alt": "#242424",
+    "fg": "#f0f0f0",
+    "fg_dim": "#808080",
+    "accent": "#ff6600",
+    "accent2": "#cc3333",
+    "red": "#cc3333",
+    "green": "#98c379",
+    "yellow": "#e5c07b",
+    "blue": "#4a7a96",
+    "border_active": "#ff6600",
+    "border_inactive": "#333333"
+  }
+}

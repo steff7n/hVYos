@@ -1,0 +1,17 @@
+{
+  "name": "Linta",
+  "description": "Linta Linux default KDE Plasma theme — modern dark with teal accent",
+  "profile": "kde",
+  "colors": {
+    "bg": "#1e1e2e",
+    "bg_alt": "#282840",
+    "fg": "#cdd6f4",
+    "fg_dim": "#6c7086",
+    "accent": "#00bcd4",
+    "accent2": "#89b4fa",
+    "red": "#f38ba8",
+    "green": "#a6e3a1",
+    "yellow": "#f9e2af",
+    "blue": "#89b4fa"
+  }
+}

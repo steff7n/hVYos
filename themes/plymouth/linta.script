@@ -1,0 +1,47 @@
+# Linta Linux Plymouth boot splash
+# Minimal branded splash with progress indicator
+
+Window.SetBackgroundTopColor(0.118, 0.118, 0.180);
+Window.SetBackgroundBottomColor(0.094, 0.094, 0.145);
+
+# Logo
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.x = Window.GetWidth() / 2 - logo.image.GetWidth() / 2;
+logo.y = Window.GetHeight() / 2 - logo.image.GetHeight() / 2 - 40;
+logo.sprite.SetPosition(logo.x, logo.y, 1);
+
+# Progress bar
+progress_box.image = Image("progress-bg.png");
+progress_box.sprite = Sprite(progress_box.image);
+progress_box.x = Window.GetWidth() / 2 - progress_box.image.GetWidth() / 2;
+progress_box.y = Window.GetHeight() / 2 + 60;
+progress_box.sprite.SetPosition(progress_box.x, progress_box.y, 1);
+
+progress_bar.original_image = Image("progress-bar.png");
+progress_bar.sprite = Sprite();
+progress_bar.x = progress_box.x + 2;
+progress_bar.y = progress_box.y + 2;
+
+fun progress_callback(duration, progress) {
+    if (progress_bar.original_image.GetWidth() > 0) {
+        new_width = progress_bar.original_image.GetWidth() * progress;
+        if (new_width > 1) {
+            progress_bar.image = progress_bar.original_image.Scale(new_width, progress_bar.original_image.GetHeight());
+            progress_bar.sprite.SetImage(progress_bar.image);
+            progress_bar.sprite.SetPosition(progress_bar.x, progress_bar.y, 2);
+        }
+    }
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);
+
+# Hide password prompt details but show a simple marker
+fun display_password_callback(prompt, bullets) {
+    # Minimal password display for LUKS
+    pass_text.image = Image.Text("Enter passphrase", 0.8, 0.83, 0.96, 1, "JetBrains Mono 14");
+    pass_text.sprite = Sprite(pass_text.image);
+    pass_text.sprite.SetPosition(Window.GetWidth() / 2 - pass_text.image.GetWidth() / 2, Window.GetHeight() / 2 + 120, 2);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);

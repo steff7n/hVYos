@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=Linta
+Description=Linta Linux SDDM login theme
+Author=Linta Project
+Version=0.1.0
+Website=https://lintalinux.org
+License=GPL-3.0-or-later
+Type=sddm-theme
+MainScript=Main.qml
+Background=background.png
+ScaleImageCropped=true

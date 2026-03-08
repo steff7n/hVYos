@@ -1,0 +1,19 @@
+{
+  "name": "Dusk",
+  "description": "Warm dark theme — deep navy with amber accents",
+  "profile": "niri",
+  "colors": {
+    "bg": "#1a1b2e",
+    "bg_alt": "#232440",
+    "fg": "#c8c8d0",
+    "fg_dim": "#6e6e82",
+    "accent": "#e0a526",
+    "accent2": "#9580ff",
+    "red": "#ff5555",
+    "green": "#50fa7b",
+    "yellow": "#f1fa8c",
+    "blue": "#6272a4",
+    "border_active": "#e0a526",
+    "border_inactive": "#2a2b45"
+  }
+}

@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Linta
+Description=Linta Linux boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/linta
+ScriptFile=/usr/share/plymouth/themes/linta/linta.script
