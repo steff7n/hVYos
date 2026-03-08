@@ -6,7 +6,7 @@ Phased development plan for the Linta Linux distribution. Each phase builds on t
 
 ## Phase 0 — Scaffolding
 
-**Status:** In Progress
+**Status:** Complete
 
 ### Description
 
@@ -28,7 +28,7 @@ None
 
 ## Phase 1 — Build Foundation
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
