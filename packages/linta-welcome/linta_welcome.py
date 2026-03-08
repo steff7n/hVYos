@@ -249,30 +249,47 @@ class FileManagerPage(SelectionPage):
 
     @staticmethod
     def _get_options(profile: str) -> list[dict[str, str]]:
-        graphical = [
+        gui_managers = [
             {"name": "Dolphin", "package": "dolphin",
-             "description": "KDE's file manager — tabs, split view, terminal panel",
+             "description": "KDE — tabs, split view, terminal panel, rich integrations",
              "icon": "D", "default": profile == "kde"},
-            {"name": "Thunar", "package": "thunar",
-             "description": "XFCE's file manager — lightweight, plugin-based",
-             "icon": "T"},
             {"name": "Nautilus", "package": "nautilus",
-             "description": "GNOME Files — clean, modern, GTK",
+             "description": "GNOME Files — clean, modern, adaptive layout",
              "icon": "N"},
+            {"name": "Thunar", "package": "thunar",
+             "description": "XFCE — lightweight, fast, plugin-based extensibility",
+             "icon": "T"},
+            {"name": "Nemo", "package": "nemo",
+             "description": "Cinnamon — dual-pane, bulk rename, embedded terminal",
+             "icon": "E"},
             {"name": "PCManFM-Qt", "package": "pcmanfm-qt",
-             "description": "Lightweight Qt file manager, tabbed interface",
+             "description": "LXQt — lightweight Qt file manager, tabbed interface",
              "icon": "P"},
+            {"name": "Caja", "package": "caja",
+             "description": "MATE — traditional layout, extensions, spatial mode",
+             "icon": "C"},
+            {"name": "Krusader", "package": "krusader",
+             "description": "KDE twin-panel (OFM) — power user, archives, FTP, compare",
+             "icon": "K"},
+            {"name": "SpaceFM", "package": "spacefm",
+             "description": "Multi-panel GTK — highly configurable, device manager",
+             "icon": "S", "default": profile == "niri"},
+        ]
+        terminal_managers = [
             {"name": "nnn", "package": "nnn",
-             "description": "Terminal file manager — blazing fast, plugin ecosystem",
-             "icon": "n", "default": profile == "niri"},
+             "description": "Terminal — blazing fast, plugin ecosystem, tiny footprint",
+             "icon": "n"},
             {"name": "ranger", "package": "ranger",
-             "description": "Terminal file manager — vim keybindings, preview pane",
+             "description": "Terminal — vim keybindings, preview pane, Python",
              "icon": "r"},
             {"name": "yazi", "package": "yazi",
-             "description": "Terminal file manager — async I/O, image preview, Rust",
+             "description": "Terminal — async I/O, image preview, Rust, very fast",
              "icon": "y"},
+            {"name": "Midnight Commander", "package": "mc",
+             "description": "Terminal — classic twin-panel, built-in editor, FTP",
+             "icon": "m"},
         ]
-        return graphical
+        return gui_managers + terminal_managers
 
     def get_package(self) -> str:
         for o in self._options:

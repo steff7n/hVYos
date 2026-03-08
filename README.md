@@ -503,18 +503,18 @@ The following decisions are deferred to the project lead:
 | Release codename theme | Pending — Debian-style thematic codenames, theme TBD |
 | Distro motto (final) | Direction: "Lean by design." — final wording TBD |
 | Automated testing gate | Needs design spec — openQA? Custom CI? What test coverage? |
-| Custom status bar implementation for Niri | Needs design spec — recommend forking Waybar and theming heavily |
-| Flatpak manager application | Needs design spec — Qt recommended for KDE consistency. Feature scope? |
-| NVIDIA tool implementation | Needs design spec — TUI? CLI? RPM Fusion + akmod as backend? |
-| Custom SDDM theme | Needs design — part of the broader visual identity work |
-| Keybinding reference tool | Needs design spec — overlay? Standalone window? Rofi-style? |
-| Font wizard implementation | Needs design spec — part of the first-boot welcome app (Qt) |
-| First-boot welcome app | Needs design spec — Qt, hosts font wizard + terminal/file manager chooser + theme picker |
-| Niri rice presets | Need 3–4 complete visual designs with all components specified |
-| KDE custom theme | Needs complete Plasma global theme, color scheme, icon set, wallpaper |
-| File manager options list | Which file managers are offered in the visual chooser? (Dolphin, Thunar, PCManFM, Nautilus, nnn, ranger, yazi, etc.) |
-| Memorable hostname word lists | Need curated adjective + noun lists for auto-generation |
-| Email client | Final selection between Claws Mail or Geary (or other lightweight option) |
+| Custom status bar implementation for Niri | **Resolved: Waybar with per-rice theming** |
+| Flatpak manager application | **Resolved: linta-flatpak-manager (PyQt6)** |
+| NVIDIA tool implementation | **Resolved: linta-nvidia (Python CLI, RPM Fusion + akmod)** |
+| Custom SDDM theme | **Resolved: QML theme (themes/sddm/)** |
+| Keybinding reference tool | **Resolved: linta-keybindings (rofi-style PyQt6 overlay)** |
+| Font wizard implementation | **Resolved: part of linta-welcome (PyQt6, 4 preset tiers)** |
+| First-boot welcome app | **Resolved: linta-welcome (PyQt6 wizard)** |
+| Niri rice presets | **Resolved: 4 rices — Dusk, Frost, Forest, Ember** |
+| KDE custom theme | **Resolved: Linta dark+teal theme (themes/kde/)** |
+| File manager options list | **Resolved: Dolphin, Nautilus, Thunar, Nemo, PCManFM-Qt, Caja, Krusader, SpaceFM + nnn, ranger, yazi, mc** |
+| Memorable hostname word lists | **Resolved: 20 adjectives + 20 nouns in linta-installer** |
+| Email client | **Resolved: None preinstalled — user installs from repos or Flatpak** |
 
 ---
 
@@ -575,7 +575,7 @@ For traceability, every design decision made during the specification process:
 | 49 | Media player | None preinstalled |
 | 50 | Image viewer | nomacs |
 | 51 | PDF viewer | None preinstalled |
-| 52 | Email client | Lightweight (Claws Mail or Geary) — TBD final selection |
+| 52 | Email client | None preinstalled — user's choice via repos or Flatpak |
 | 53 | Office suite | None preinstalled |
 | 54 | Calculator | bc (terminal) |
 | 55 | Archive manager | CLI only (tar, unzip, 7z) + oh-my-zsh `extract` plugin |

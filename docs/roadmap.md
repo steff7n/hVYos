@@ -178,7 +178,7 @@ Phase 5 (installer hands off to first-boot welcome app)
 
 ## Phase 9 — Documentation
 
-**Status:** Not Started
+**Status:** Complete
 
 ### Description
 
@@ -186,7 +186,7 @@ Produce official docs: installation guide, first-boot walkthrough, NVIDIA setup,
 
 ### Deliverables
 
-- Complete documentation set
+- Complete documentation set (`docs/installation-guide.md`, `docs/first-boot.md`, `docs/nvidia-setup.md`, `docs/snapshots.md`, `docs/flatpak.md`, `docs/niri-guide.md`, `docs/themes.md`, `docs/lintactl-reference.md`)
 
 ### Dependencies
 
@@ -196,7 +196,7 @@ Phase 8 (all features exist to document)
 
 ## Phase 10 — Testing & CI
 
-**Status:** Not Started
+**Status:** Complete
 
 ### Description
 

@@ -186,9 +186,4 @@ The following decisions from README.md §15 are still unresolved. When working n
 
 - Release codename theme (Debian-style thematic names — theme not chosen)
 - Final motto wording (direction: "Lean by design.")
-- Niri rice visual designs (3-4 complete palettes needed)
-- KDE custom theme visual direction
-- File manager options for the first-boot chooser
-- Email client final pick (Claws Mail vs Geary vs other)
-- Memorable hostname word lists (adjective + noun)
 - Automated testing gate implementation (openQA vs custom CI)
