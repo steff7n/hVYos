@@ -58,3 +58,4 @@ Thumbs.db
 .env
 *.key
 *.pem
+__pycache__/
