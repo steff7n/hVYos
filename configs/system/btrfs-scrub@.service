@@ -1,0 +1,12 @@
+# Linta Linux — Monthly Btrfs scrub service
+# Profiles: [All]
+
+[Unit]
+Description=Btrfs scrub on %f
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/btrfs scrub start -B %f
+IOSchedulingClass=idle
+CPUSchedulingPolicy=idle
+Nice=19

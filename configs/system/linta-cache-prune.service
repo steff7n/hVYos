@@ -1,0 +1,10 @@
+# Linta Linux — Package cache pruning service
+# Profiles: [All]
+# Spec: README.md §3.9
+
+[Unit]
+Description=Remove cached packages older than 30 days
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/find /var/cache/dnf -type f -mtime +30 -delete

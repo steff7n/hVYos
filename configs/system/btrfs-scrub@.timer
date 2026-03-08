@@ -1,0 +1,13 @@
+# Linta Linux — Monthly Btrfs scrub timer
+# Profiles: [All]
+
+[Unit]
+Description=Monthly Btrfs scrub on %f
+
+[Timer]
+OnCalendar=monthly
+RandomizedDelaySec=1d
+Persistent=true
+
+[Install]
+WantedBy=timers.target

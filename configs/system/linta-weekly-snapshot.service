@@ -1,0 +1,10 @@
+# Linta Linux — Weekly Btrfs snapshot service
+# Profiles: [All]
+# Spec: README.md §3.2
+
+[Unit]
+Description=Create weekly Btrfs snapshot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/linta-snapshots create -d "weekly-auto"
