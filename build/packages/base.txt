@@ -1,0 +1,51 @@
+# Linta base packages — included in ALL profiles (including Bare)
+# For GUI-only packages shared across graphical profiles, see base-graphical.txt
+# Spec reference: README.md §8.2
+
+# Shell
+zsh
+zsh-syntax-highlighting
+util-linux
+
+# Terminal editor
+helix
+
+# System monitor
+btop
+
+# Dev: C/C++
+gcc
+gcc-c++
+clang
+make
+cmake
+gdb
+
+# Dev: General
+git
+python3
+openssh-clients
+
+# Archive tools
+tar
+unzip
+p7zip
+p7zip-plugins
+
+# Calculator
+bc
+
+# System infrastructure
+btrfs-progs
+snapper
+grub2-tools
+firewalld
+NetworkManager
+udisks2
+
+# Firmware and codecs
+linux-firmware
+
+# SELinux
+selinux-policy-targeted
+policycoreutils

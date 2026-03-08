@@ -1,0 +1,13 @@
+# Linta Bare profile packages
+# TTY-only — no display manager, no compositor, no GUI apps
+# Spec reference: README.md §5.2
+#
+# Uses base.txt ONLY (not base-graphical.txt)
+#
+# Explicitly NOT included:
+# - No display manager (no sddm)
+# - No compositor (no KDE, no Niri)
+# - No GUI applications (no flameshot, no nomacs, no floorp)
+# - No Wayland tools (no wl-clipboard)
+# - No PipeWire (no audio stack in TTY context)
+# - No Flatpak

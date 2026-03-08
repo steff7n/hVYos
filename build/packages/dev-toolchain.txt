@@ -1,0 +1,38 @@
+# Linta developer toolchain
+# These are included in base.txt but listed separately for reference
+# Spec reference: README.md §8.2
+
+# C/C++
+gcc
+gcc-c++
+clang
+clang-tools-extra
+make
+cmake
+gdb
+valgrind
+strace
+ltrace
+
+# Build tools
+autoconf
+automake
+libtool
+pkg-config
+meson
+ninja-build
+
+# Python
+python3
+python3-pip
+python3-devel
+
+# Version control
+git
+git-lfs
+
+# General
+openssh-clients
+curl
+wget
+jq

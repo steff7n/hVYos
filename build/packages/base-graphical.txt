@@ -1,0 +1,37 @@
+# Linta graphical base packages — included in KDE, Niri, and Combined profiles
+# NOT included in Bare profile (TTY-only)
+# Spec reference: README.md §8.2, §8.3
+
+# Browser
+# floorp — not in Fedora repos, needs custom RPM or Flatpak
+
+# Image viewer
+# nomacs — may need custom RPM, revisit in Phase 1
+
+# Screenshot
+flameshot
+
+# Clipboard (Wayland-native)
+wl-clipboard
+
+# Audio stack (not needed on Bare)
+pipewire
+pipewire-pulseaudio
+pipewire-alsa
+wireplumber
+
+# Power management (GUI toggle)
+power-profiles-daemon
+
+# GPU drivers
+mesa-dri-drivers
+
+# Flatpak + Flathub
+flatpak
+
+# Fonts (minimal system fonts — font wizard handles the rest on first boot)
+dejavu-sans-fonts
+dejavu-sans-mono-fonts
+
+# NTP
+systemd-timesyncd

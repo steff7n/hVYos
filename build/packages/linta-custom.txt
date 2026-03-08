@@ -1,0 +1,18 @@
+# Custom Linta packages (built from packages/ directory)
+# These are RPMs we build and maintain
+
+lintactl
+linta-snapshots
+linta-nvidia
+linta-welcome
+linta-flatpak-manager
+linta-keybindings
+linta-theme-kde
+linta-theme-niri-rice1
+linta-theme-niri-rice2
+linta-theme-niri-rice3
+linta-theme-niri-rice4
+linta-theme-sddm
+linta-theme-plymouth
+linta-config-zsh
+linta-config-helix

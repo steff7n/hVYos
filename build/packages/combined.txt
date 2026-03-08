@@ -1,0 +1,9 @@
+# Linta Combined profile packages
+# Union of KDE and Niri profiles: base + base-graphical + kde + niri
+# Spec reference: README.md §5.2
+#
+# Build system should merge:
+#   base.txt + base-graphical.txt + kde.txt + niri.txt
+#
+# SDDM is shared and provides session switching between Plasma and Niri.
+# No Combined-only packages — if it's not in KDE or Niri, it's not here.

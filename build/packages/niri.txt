@@ -1,0 +1,28 @@
+# Linta Niri profile packages
+# Spec reference: README.md §5.2, §8.3
+# NOTE: Niri is pure Wayland — NO Xwayland
+
+# Compositor
+# niri — needs custom RPM (not in Fedora repos)
+
+# Display manager
+sddm
+
+# App launcher
+fuzzel
+
+# Status bar
+# waybar — or custom linta bar (TBD, see spec §7.3, §15)
+waybar
+
+# Notifications
+mako
+
+# Session lock
+swaylock-effects
+
+# Wallpaper
+swaybg
+
+# Theming
+qt6-qtwayland

@@ -1,0 +1,60 @@
+# === Build artifacts ===
+*.iso
+*.img
+*.raw
+build/output/
+build/cache/
+build/tmp/
+
+# === RPM build ===
+rpmbuild/
+*.rpm
+*.srpm
+*.src.rpm
+SRPMS/
+RPMS/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+*.egg
+.venv/
+venv/
+env/
+
+# === Qt / PyQt build ===
+*.pro.user
+*.qmlc
+*.jsc
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# === Editor backups ===
+*~
+*.swp
+*.swo
+*.bak
+*.orig
+.*.swp
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+.directory
+
+# === IDE ===
+.idea/
+.vscode/
+*.code-workspace
+
+# === Logs ===
+*.log
+
+# === Secrets (should never exist, but just in case) ===
+.env
+*.key
+*.pem

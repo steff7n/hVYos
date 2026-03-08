@@ -1,0 +1,35 @@
+# Linta KDE profile packages
+# Spec reference: README.md §5.2, §8.3
+
+# Desktop environment
+plasma-desktop
+plasma-workspace
+sddm
+sddm-kcm
+
+# Wayland session
+plasma-workspace-wayland
+kwin-wayland
+xorg-x11-server-Xwayland
+
+# KDE core components
+dolphin
+konsole
+systemsettings
+powerdevil
+plasma-nm
+plasma-pa
+bluedevil
+kde-gtk-config
+breeze-gtk
+
+# Session lock
+kscreenlocker
+
+# Notifications
+plasma-desktop
+
+# Theming
+breeze-icon-theme
+plasma-integration
+kvantum
