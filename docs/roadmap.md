@@ -48,7 +48,7 @@ Phase 0
 
 ## Phase 2 — Core System Tools
 
-**Status:** In Progress
+**Status:** Complete
 
 ### Description
 
@@ -68,7 +68,7 @@ Phase 1 (needs bootable ISO to test against)
 
 ## Phase 3 — NVIDIA Tool
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
