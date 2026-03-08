@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Linta — Niri Theme Designer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ════════ PREVIEW PANEL ════════ -->
+  <div class="preview-panel">
+    <div class="desktop-viewport" id="viewport">
+      <div class="desktop-bg" id="desktopBg"></div>
+
+      <!-- Waybar -->
+      <div class="preview-bar top" id="waybar">
+        <div class="bar-section bar-left" id="barLeft"></div>
+        <div class="bar-section bar-center" id="barCenter"></div>
+        <div class="bar-section bar-right" id="barRight"></div>
+      </div>
+
+      <!-- Windows -->
+      <div class="windows-area" id="windowsArea">
+        <div class="win" id="win1">
+          <div class="win-titlebar" id="win1Title">
+            <span>foot — ~/Projects/linta</span>
+            <div class="win-dots">
+              <span class="win-dot" id="dotY1"></span>
+              <span class="win-dot" id="dotG1"></span>
+              <span class="win-dot" id="dotR1"></span>
+            </div>
+          </div>
+          <div class="win-content" id="win1Content"></div>
+        </div>
+        <div class="win" id="win2">
+          <div class="win-titlebar" id="win2Title">
+            <span>Floorp — Linta Wiki</span>
+            <div class="win-dots">
+              <span class="win-dot" id="dotY2"></span>
+              <span class="win-dot" id="dotG2"></span>
+              <span class="win-dot" id="dotR2"></span>
+            </div>
+          </div>
+          <div class="win-content" id="win2Content"></div>
+        </div>
+        <div class="win" id="win3">
+          <div class="win-titlebar" id="win3Title">
+            <span>Helix — config.kdl</span>
+            <div class="win-dots">
+              <span class="win-dot" id="dotY3"></span>
+              <span class="win-dot" id="dotG3"></span>
+              <span class="win-dot" id="dotR3"></span>
+            </div>
+          </div>
+          <div class="win-content" id="win3Content"></div>
+        </div>
+      </div>
+
+      <!-- Notification -->
+      <div class="preview-notification" id="notification">
+        <div class="notif-title">System Update</div>
+        <div class="notif-body">15 packages updated successfully.</div>
+        <div class="notif-sub">Snapshot #42 created.</div>
+      </div>
+
+      <!-- Launcher overlay -->
+      <div class="launcher-overlay" id="launcherOverlay">
+        <div class="launcher-box" id="launcherBox">
+          <div class="launcher-input" id="launcherInput">
+            <span id="launcherPrompt">&#x276f; </span>fire<span style="opacity:0.35;">fox</span>
+          </div>
+          <div class="launcher-results" id="launcherResults">
+            <div class="launcher-item" id="launcherSel">Firefox — Web Browser</div>
+            <div class="launcher-item" id="launcherItem2">Firewalld — Firewall Config</div>
+            <div class="launcher-item" id="launcherItem3">Files — File Manager</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lock screen overlay -->
+      <div class="lockscreen-overlay" id="lockOverlay">
+        <div class="lock-ring" id="lockRing">
+          <div class="lock-inner" id="lockInner">
+            <span id="lockTime">14:32</span>
+          </div>
+        </div>
+        <div class="lock-text" id="lockText">Enter passphrase</div>
+      </div>
+
+      <!-- Toggle buttons -->
+      <div class="overlay-toggles">
+        <button class="toggle-btn" id="toggleLauncher">Launcher</button>
+        <button class="toggle-btn" id="toggleLock">Lock Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ CONTROLS PANEL ════════ -->
+  <div class="controls-panel">
+    <div class="controls-header">
+      <h1>Theme Designer</h1>
+      <small>Linta / Niri</small>
+    </div>
+
+    <!-- Presets -->
+    <div class="ctrl-section">
+      <h3>Preset</h3>
+      <select class="preset-select" id="presetSelect">
+        <optgroup label="Linta Rices">
+          <option value="Dusk">Dusk</option>
+          <option value="Frost">Frost</option>
+          <option value="Forest">Forest</option>
+          <option value="Ember">Ember</option>
+        </optgroup>
+        <optgroup label="Community Schemes">
+          <option value="Nord">Nord</option>
+          <option value="Catppuccin Mocha">Catppuccin Mocha</option>
+          <option value="Dracula">Dracula</option>
+          <option value="Gruvbox Dark">Gruvbox Dark</option>
+          <option value="Tokyo Night">Tokyo Night</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <!-- Palette -->
+    <div class="ctrl-section" id="paletteSection">
+      <h3>Palette</h3>
+      <!-- populated by JS -->
+    </div>
+
+    <!-- Layout -->
+    <div class="ctrl-section" id="layoutSection">
+      <h3>Layout</h3>
+      <div class="slider-row"><label>Gaps</label><input type="range" min="0" max="32" data-key="layout.gaps"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Outer gaps</label><input type="range" min="0" max="32" data-key="layout.outerGaps"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Border width</label><input type="range" min="0" max="6" data-key="layout.borderWidth"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Border radius</label><input type="range" min="0" max="16" data-key="layout.borderRadius"><span class="slider-val"></span></div>
+    </div>
+
+    <!-- Waybar -->
+    <div class="ctrl-section" id="waybarSection">
+      <h3>Waybar</h3>
+      <div class="slider-row"><label>Height</label><input type="range" min="24" max="48" data-key="waybar.height"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Opacity</label><input type="range" min="0" max="100" data-key="waybar.opacity"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Font size</label><input type="range" min="10" max="18" data-key="waybar.fontSize"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Bar border</label><input type="range" min="0" max="4" data-key="waybar.borderWidth"><span class="slider-val"></span></div>
+      <div class="toggle-row"><label>Position</label>
+        <select data-key="waybar.position"><option value="top">Top</option><option value="bottom">Bottom</option></select>
+      </div>
+      <div class="module-zone"><div class="module-zone-label">Left modules</div>
+        <div class="module-checks" id="modulesLeft"></div></div>
+      <div class="module-zone"><div class="module-zone-label">Center modules</div>
+        <div class="module-checks" id="modulesCenter"></div></div>
+      <div class="module-zone"><div class="module-zone-label">Right modules</div>
+        <div class="module-checks" id="modulesRight"></div></div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="ctrl-section" id="makoSection">
+      <h3>Notifications</h3>
+      <div class="slider-row"><label>Border radius</label><input type="range" min="0" max="20" data-key="mako.borderRadius"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Border width</label><input type="range" min="0" max="4" data-key="mako.borderWidth"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Opacity</label><input type="range" min="50" max="100" data-key="mako.opacity"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Width</label><input type="range" min="200" max="500" data-key="mako.width"><span class="slider-val"></span></div>
+      <div class="toggle-row"><label>Position</label>
+        <select data-key="mako.position">
+          <option value="top-right">Top Right</option>
+          <option value="top-left">Top Left</option>
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Launcher -->
+    <div class="ctrl-section" id="fuzzelSection">
+      <h3>Launcher</h3>
+      <div class="slider-row"><label>Border radius</label><input type="range" min="0" max="20" data-key="fuzzel.borderRadius"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>Border width</label><input type="range" min="0" max="4" data-key="fuzzel.borderWidth"><span class="slider-val"></span></div>
+      <div class="slider-row"><label>BG opacity</label><input type="range" min="50" max="100" data-key="fuzzel.bgOpacity"><span class="slider-val"></span></div>
+    </div>
+
+    <!-- Export -->
+    <div class="ctrl-section export-section">
+      <h3>Export</h3>
+      <div class="export-field"><label>Rice name</label><input type="text" id="exportName" value="my-rice"></div>
+      <div class="export-field"><label>Description</label><input type="text" id="exportDesc" value="Custom Linta Niri theme"></div>
+      <button class="export-btn" id="btnExport">Export All Configs (.zip)</button>
+      <button class="export-btn secondary" id="btnCopyMeta" style="margin-top:6px;">Copy metadata.json</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
+<script src="presets.js"></script>
+<script src="designer.js"></script>
+</body>
+</html>
