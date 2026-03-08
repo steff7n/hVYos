@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Linta Welcome
+Comment=First-boot setup wizard
+Exec=/bin/sh -c 'if [ ! -f /var/lib/linta/first-boot-done ]; then linta-welcome; fi'
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel

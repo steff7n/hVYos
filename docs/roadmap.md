@@ -87,7 +87,7 @@ Phase 2
 
 ## Phase 4 — Visual Identity
 
-**Status:** In Progress
+**Status:** Complete
 
 ### Description
 
@@ -105,7 +105,7 @@ Phase 2 (needs lintactl theme-switch to test switching)
 
 ## Phase 5 — First-Boot Experience
 
-**Status:** Not Started
+**Status:** In Progress
 
 ### Description
 
