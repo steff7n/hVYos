@@ -95,15 +95,13 @@ strace
 ltrace
 autoconf
 automake
-libtool
 pkgconf
 meson
 ninja-build
 python3-pip
 python3-devel
 git-lfs
-curl
-wget
+wget2-wget
 jq
 
 # Archive tools

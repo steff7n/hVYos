@@ -154,6 +154,11 @@ cmd_build_iso() {
 
     mkdir -p "${ISO_OUTPUT}"
 
+    # Ensure enough loop devices exist
+    for i in $(seq 0 15); do
+        [[ -b "/dev/loop${i}" ]] || mknod -m 0660 "/dev/loop${i}" b 7 "${i}" 2>/dev/null || true
+    done
+
     livecd-creator \
         --config="${flat_ks}" \
         --fslabel="Linta-${profile}" \
