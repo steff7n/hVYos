@@ -188,6 +188,43 @@ class TestUpdateGrubEntries(unittest.TestCase):
             self.assertIn("1234-ABCD", output)
             self.assertNotIn("$btrfs_uuid", output)
 
+    @patch("linta_snapshots._parse_snapper_list")
+    @patch("linta_snapshots._get_boot_artifact_names", return_value=("vmlinuz-6.8.12", "initramfs-6.8.12.img"))
+    @patch("linta_snapshots._run")
+    def test_update_grub_entries_uses_snapshot_boot_artifacts(
+        self, mock_run, mock_boot_names, mock_parse
+    ):
+        mock_parse.return_value = [
+            {
+                "number": "42",
+                "type": "single",
+                "date": "2025-03-09 12:00:00",
+                "description": "manual",
+                "cleanup": "number",
+            }
+        ]
+
+        def run_side_effect(cmd, check=True):
+            if cmd == ["findmnt", "-n", "-o", "UUID", "/"]:
+                return MagicMock(stdout="1234-ABCD\n")
+            if cmd[:2] == ["grub2-mkconfig", "-o"]:
+                return MagicMock(stdout="")
+            raise AssertionError(f"Unexpected command: {cmd}")
+
+        mock_run.side_effect = run_side_effect
+
+        with tempfile.TemporaryDirectory() as tmp:
+            grub_snapshot_cfg = Path(tmp) / "45_linta_snapshots"
+            grub_cfg = Path(tmp) / "grub.cfg"
+            with patch("linta_snapshots.GRUB_SNAPSHOT_CFG", grub_snapshot_cfg), patch(
+                "linta_snapshots.GRUB_CFG", grub_cfg
+            ):
+                linta_snapshots._update_grub_entries()
+
+            output = grub_snapshot_cfg.read_text()
+            self.assertIn("/@/.snapshots/42/snapshot/boot/vmlinuz-6.8.12", output)
+            self.assertIn("/@/.snapshots/42/snapshot/boot/initramfs-6.8.12.img", output)
+
 
 if __name__ == "__main__":
     unittest.main()

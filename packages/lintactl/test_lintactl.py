@@ -110,7 +110,7 @@ class TestGetActiveTheme(unittest.TestCase):
         self.assertEqual(result, "linta-kde-default")
 
     def test_get_active_theme_niri_profile_default(self) -> None:
-        """niri profile defaults to linta-niri-rice1."""
+        """niri profile defaults to linta-niri-rice-1."""
         with tempfile.TemporaryDirectory() as tmp:
             theme_file = Path(tmp) / "nonexistent"
             release_file = Path(tmp) / "linta-release"
@@ -119,7 +119,7 @@ class TestGetActiveTheme(unittest.TestCase):
                 "lintactl.RELEASE_FILE", release_file
             ):
                 result = lintactl._get_active_theme()
-        self.assertEqual(result, "linta-niri-rice1")
+        self.assertEqual(result, "linta-niri-rice-1")
 
     def test_get_active_theme_unknown_profile_returns_none(self) -> None:
         """Unknown profile returns 'none'."""

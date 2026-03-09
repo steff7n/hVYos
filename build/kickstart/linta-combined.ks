@@ -79,10 +79,10 @@ qt6-qtwayland
 
 # Niri ecosystem
 fuzzel
+foot
 waybar
 mako
 swaylock
-swaybg
 qt5-qtwayland
 polkit-gnome
 xdg-desktop-portal
@@ -195,7 +195,6 @@ layout {
 }
 
 spawn-at-startup "waybar"
-spawn-at-startup "swaybg" "-m" "fill" "-i" "/usr/share/backgrounds/linta/default.png"
 
 screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d-%H-%M-%S.png"
 

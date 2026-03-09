@@ -21,7 +21,7 @@ From project root:
 ./scripts/build-with-container.sh create-repo
 
 # Build an ISO (requires --privileged, --network=host, and loop module)
-sudo modprobe loop   # one-time, needed for livecd-creator loopback mounts
+sudo modprobe loop   # one-time, needed for ISO build loopback mounts
 podman run --rm --privileged --network=host -v "$(pwd):/workspace:z" linta-builder build-iso kde
 ```
 

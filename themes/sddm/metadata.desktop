@@ -7,5 +7,4 @@ Website=https://lintalinux.org
 License=GPL-3.0-or-later
 Type=sddm-theme
 MainScript=Main.qml
-Background=background.png
 ScaleImageCropped=true

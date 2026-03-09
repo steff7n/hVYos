@@ -326,7 +326,7 @@ function generateWaybarConfig() {
     "modules-right": S.modules.right.map(m => modMap[m] || m),
     clock: { format: "{:%H:%M}", "format-alt": "{:%A, %B %d}", "tooltip-format": "{:%Y-%m-%d | %H:%M:%S}" },
     cpu: { format: "\uf4bc  {usage}%" },
-    memory: { format: "\uf035b  {}%" },
+    memory: { format: "\uf035b  {percentage}%" },
     battery: { format: "{icon}  {capacity}%", "format-icons": ["\uf244","\uf243","\uf242","\uf241","\uf240"] },
     network: { "format-wifi": "\uf1eb  {signalStrength}%", "format-ethernet": "\uf0ac  {ipaddr}", "format-disconnected": "\uf071  offline" },
     pulseaudio: { format: "{icon}  {volume}%", "format-muted": "\uf6a9  muted", "format-icons": { default: ["\uf026","\uf027","\uf028"] } },

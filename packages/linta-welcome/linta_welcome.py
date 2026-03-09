@@ -74,6 +74,28 @@ def _install_packages(packages: list[str]) -> bool:
         return False
 
 
+def _apply_locale_settings(locale: str, timezone: str) -> bool:
+    """Apply locale and timezone using privileged system tools."""
+    try:
+        _run(["pkexec", "localectl", "set-locale", f"LANG={locale}"], check=True)
+        _run(["pkexec", "timedatectl", "set-timezone", timezone], check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+
+def _theme_id_for_name(theme_name: str) -> str:
+    """Resolve a supported theme name to a Linta theme ID."""
+    theme_map = {
+        "Dusk": "linta-niri-rice-1",
+        "Frost": "linta-niri-rice-2",
+        "Forest": "linta-niri-rice-3",
+        "Ember": "linta-niri-rice-4",
+        "Linta (KDE)": "linta-kde-default",
+    }
+    return theme_map.get(theme_name, "")
+
+
 def _dark_palette() -> QPalette:
     """Create a dark palette matching the Linta identity."""
     palette = QPalette()
@@ -415,11 +437,6 @@ class ThemePickerPage(SelectionPage):
                 "description": "Dark theme with teal accent — Linta's signature look",
                 "icon": "K", "default": profile == "kde",
             })
-            options.append({
-                "name": "Breeze",
-                "description": "KDE's default theme — familiar and polished",
-                "icon": "B",
-            })
 
         if profile in ("niri", "combined"):
             options.extend([
@@ -431,8 +448,6 @@ class ThemePickerPage(SelectionPage):
                  "icon": "3"},
                 {"name": "Ember", "description": "High-contrast dark — charcoal with orange accents",
                  "icon": "4"},
-                {"name": "Vanilla Niri", "description": "Stock Niri defaults — no custom theming",
-                 "icon": "V"},
             ])
 
         return options
@@ -646,6 +661,12 @@ class LintaWelcomeWizard(QWizard):
         if packages_to_install:
             _install_packages(packages_to_install)
 
+        if not self.font_wizard_only and hasattr(self, "locale_page"):
+            _apply_locale_settings(
+                self.locale_page.locale_combo.currentText(),
+                self.locale_page.tz_combo.currentText(),
+            )
+
         if not self.font_wizard_only and hasattr(self, "theme_page"):
             theme = self.theme_page.selected_option
             if theme:
@@ -656,14 +677,7 @@ class LintaWelcomeWizard(QWizard):
         super().accept()
 
     def _apply_theme(self, theme_name: str) -> None:
-        theme_map = {
-            "Dusk": "linta-niri-rice-1",
-            "Frost": "linta-niri-rice-2",
-            "Forest": "linta-niri-rice-3",
-            "Ember": "linta-niri-rice-4",
-            "Linta (KDE)": "linta-kde-default",
-        }
-        theme_id = theme_map.get(theme_name, "")
+        theme_id = _theme_id_for_name(theme_name)
         if theme_id:
             _run(["lintactl", "theme", "set", theme_id])
 

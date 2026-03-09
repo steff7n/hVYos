@@ -10,6 +10,7 @@ Profiles: [All]
 from __future__ import annotations
 
 import curses
+import os
 import random
 import subprocess
 import sys
@@ -53,6 +54,74 @@ COMMON_LOCALES = [
     "nl_NL.UTF-8",
     "sv_SE.UTF-8",
     "cs_CZ.UTF-8",
+]
+
+DEFAULT_RELEASEVER = "42"
+DISTRO_VERSION = "25.1"
+DEFAULT_USERNAME = "linta"
+DEFAULT_PASSWORD = "linta"
+
+BASE_PACKAGES = [
+    "@core",
+    "@standard",
+    "kernel",
+    "btrfs-progs",
+    "grub2-efi-x64",
+    "grub2-efi-x64-modules",
+    "efibootmgr",
+    "shim-x64",
+]
+
+GRAPHICAL_PACKAGES = [
+    "flatpak",
+    "mesa-dri-drivers",
+    "pipewire",
+    "pipewire-pulseaudio",
+    "pipewire-alsa",
+    "wireplumber",
+    "power-profiles-daemon",
+    "wl-clipboard",
+    "dejavu-sans-fonts",
+    "dejavu-sans-mono-fonts",
+]
+
+KDE_PACKAGES = [
+    "plasma-desktop",
+    "plasma-workspace",
+    "sddm",
+    "sddm-kcm",
+    "plasma-workspace-wayland",
+    "kwin-wayland",
+    "xorg-x11-server-Xwayland",
+    "dolphin",
+    "konsole",
+    "plasma-systemsettings",
+    "powerdevil",
+    "plasma-nm",
+    "plasma-pa",
+    "bluedevil",
+    "kde-gtk-config",
+    "breeze-gtk",
+    "kscreenlocker",
+    "breeze-icon-theme",
+    "plasma-integration",
+    "kvantum",
+]
+
+NIRI_PACKAGES = [
+    "sddm",
+    "fuzzel",
+    "waybar",
+    "mako",
+    "swaylock",
+    "swaybg",
+    "foot",
+    "qt6-qtwayland",
+    "qt5-qtwayland",
+    "polkit-gnome",
+    "xdg-desktop-portal",
+    "xdg-desktop-portal-gtk",
+    "xdg-desktop-portal-wlr",
 ]
 
 
@@ -123,9 +192,97 @@ def get_timezones() -> list[str]:
         ]
 
 
-def _partition_device(disk: str, number: int) -> str:
-    suffix = f"p{number}" if disk[-1].isdigit() else str(number)
-    return f"{disk}{suffix}"
+def _dedupe_packages(packages: list[str]) -> list[str]:
+    """Preserve package order while removing duplicates."""
+    seen: set[str] = set()
+    result: list[str] = []
+    for package in packages:
+        if package not in seen:
+            seen.add(package)
+            result.append(package)
+    return result
+
+
+def _package_list_for_state(state: InstallState) -> list[str]:
+    """Return the package list for the selected installer profile."""
+    packages = list(BASE_PACKAGES)
+
+    if state.profile in ("kde", "niri", "combined"):
+        packages.extend(GRAPHICAL_PACKAGES)
+    if state.profile in ("kde", "combined"):
+        packages.extend(KDE_PACKAGES)
+    if state.profile in ("niri", "combined"):
+        packages.extend(NIRI_PACKAGES)
+    if state.luks:
+        packages.append("cryptsetup")
+
+    return _dedupe_packages(packages)
+
+
+def _build_dnf_install_command(root: Path, packages: list[str]) -> list[str]:
+    """Build the DNF install command for the target root."""
+    releasever = os.environ.get("LINTA_RELEASEVER", DEFAULT_RELEASEVER)
+    return [
+        "dnf",
+        "--installroot",
+        str(root),
+        "--releasever",
+        releasever,
+        "-y",
+        "install",
+    ] + packages
+
+
+def _write_linta_release(root: Path, profile: str) -> None:
+    """Write release metadata expected by Linta tools."""
+    release_file = root / "etc/linta-release"
+    release_file.parent.mkdir(parents=True, exist_ok=True)
+    release_file.write_text(
+        "\n".join(
+            [
+                'NAME="Linta"',
+                f'VERSION="{DISTRO_VERSION}"',
+                "ID=linta",
+                "ID_LIKE=fedora",
+                f"VARIANT_ID={profile}",
+                'HOME_URL="https://lintalinux.org"',
+                'SUPPORT_URL="https://lintalinux.org/docs"',
+            ]
+        )
+        + "\n"
+    )
+
+
+def _write_system_config(root: Path, state: InstallState) -> None:
+    """Write basic system metadata into the target root."""
+    etc_dir = root / "etc"
+    etc_dir.mkdir(parents=True, exist_ok=True)
+
+    (etc_dir / "hostname").write_text(state.hostname + "\n")
+    (etc_dir / "locale.conf").write_text(f"LANG={state.locale}\n")
+
+    localtime = etc_dir / "localtime"
+    if localtime.exists() or localtime.is_symlink():
+        localtime.unlink()
+    localtime.symlink_to(f"/usr/share/zoneinfo/{state.timezone}")
+
+    _write_linta_release(root, state.profile)
+
+
+def _create_default_user(root: Path) -> None:
+    """Create the default installer user expected by the distro workflow."""
+    subprocess.run(
+        ["chroot", str(root), "useradd", "-m", "-G", "wheel", DEFAULT_USERNAME],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["chroot", str(root), "chpasswd"],
+        input=f"{DEFAULT_USERNAME}:{DEFAULT_PASSWORD}\n",
+        text=True,
+        check=True,
+        capture_output=True,
+    )
 
 
 def draw_header(win: curses.window, title: str, color: int) -> None:
@@ -574,16 +731,8 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
 
         # Phase 3: Package install (simplified - base + minimal)
         log("Installing packages (this may take several minutes)...")
-        packages = [
-            "@core", "@standard", "kernel", "btrfs-progs",
-            "grub2-efi-x64", "grub2-efi-x64-modules", "efibootmgr", "shim-x64",
-        ]
-        if state.luks:
-            packages.append("cryptsetup")
-        pkg_cmd = [
-            "dnf", "--installroot", str(root), "--releasever", "41",
-            "-y", "install",
-        ] + packages
+        packages = _package_list_for_state(state)
+        pkg_cmd = _build_dnf_install_command(root, packages)
         result = subprocess.run(pkg_cmd, capture_output=True, text=True)
         if result.returncode != 0:
             log(f"Package install warning: {result.stderr[:200]}")
@@ -591,17 +740,8 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
 
         # Phase 4: Config
         log("Configuring system...")
-        hostname_file = root / "etc/hostname"
-        hostname_file.write_text(state.hostname + "\n")
-
-        if (root / "etc/locale.conf").exists():
-            (root / "etc/locale.conf").write_text(f"LANG={state.locale}\n")
-        subprocess.run(
-            ["ln", "-sf", f"/usr/share/zoneinfo/{state.timezone}",
-             str(root / "etc/localtime")],
-            check=True,
-            capture_output=True,
-        )
+        _write_system_config(root, state)
+        _create_default_user(root)
         log("Config complete.")
 
         # Phase 5: Bootloader
@@ -712,6 +852,7 @@ def main(stdscr: curses.window) -> int:
             disk=disk,
         )
         if not screen_confirmation(stdscr, color_acc, state):
+            state.disk = ""
             continue
         break
 

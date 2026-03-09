@@ -48,7 +48,7 @@ def _get_active_theme() -> str:
     if profile == "kde":
         return "linta-kde-default"
     elif profile in ("niri", "combined"):
-        return "linta-niri-rice1"
+        return "linta-niri-rice-1"
     return "none"
 
 

@@ -152,26 +152,24 @@ cmd_build_iso() {
     timestamp="$(date +%Y%m%d)"
     local iso_name="linta-${profile}-42-x86_64-${timestamp}.iso"
 
-    mkdir -p "${ISO_OUTPUT}"
+    mkdir -p "${ISO_OUTPUT}" "${ISO_OUTPUT}/work-${profile}"
 
     # Ensure enough loop devices exist
     for i in $(seq 0 15); do
         [[ -b "/dev/loop${i}" ]] || mknod -m 0660 "/dev/loop${i}" b 7 "${i}" 2>/dev/null || true
     done
 
-    livecd-creator \
-        --config="${flat_ks}" \
-        --fslabel="Linta-${profile}" \
-        --cache="/var/cache/livecd" \
-        --tmpdir="/var/tmp" \
+    livemedia-creator \
+        --ks="${flat_ks}" \
+        --no-virt \
+        --resultdir="${ISO_OUTPUT}" \
+        --project="Linta" \
+        --releasever="42" \
+        --volid="Linta-${profile}-42-${timestamp}" \
+        --iso-only \
+        --iso-name="${iso_name}" \
+        --tmp="${ISO_OUTPUT}/work-${profile}" \
         2>&1 | tee "${ISO_OUTPUT}/build-${profile}.log"
-
-    # livecd-creator outputs to cwd; move to ISO_OUTPUT
-    local livecd_iso
-    livecd_iso="$(ls Linta-${profile}*.iso 2>/dev/null | head -1)"
-    if [[ -n "${livecd_iso}" ]]; then
-        mv "${livecd_iso}" "${ISO_OUTPUT}/${iso_name}"
-    fi
 
     rm -f "${flat_ks}"
 
@@ -197,22 +195,44 @@ cmd_test() {
     cd "${WORKSPACE}"
 
     local total=0 passed=0 failed=0
-    for test_dir in packages/lintactl packages/linta-snapshots packages/linta-nvidia; do
-        local name
+    local suite_dirs=(
+        packages/lintactl
+        packages/linta-snapshots
+        packages/linta-nvidia
+        packages/linta-welcome
+        packages/linta-flatpak-manager
+        packages/linta-keybindings
+        installer
+        build/testing
+    )
+    local suite_files=(
+        "test_lintactl.py"
+        "test_linta_snapshots.py"
+        "test_linta_nvidia.py"
+        "test_linta_welcome.py"
+        "test_linta_flatpak_manager.py"
+        "test_linta_keybindings.py"
+        "test_linta_installer.py"
+        "test_build_with_container.py test_build_entrypoints.py test_runtime_configs.py"
+    )
+    for i in "${!suite_dirs[@]}"; do
+        local test_dir name
+        local -a test_files
+        test_dir="${suite_dirs[$i]}"
+        IFS=' ' read -r -a test_files <<< "${suite_files[$i]}"
         name=$(basename "${test_dir}")
         echo ""
         echo "── ${name} ──"
 
-        test_file=$(find "${test_dir}" -name 'test_*.py' -print -quit)
-        if [[ -n "${test_file}" ]]; then
-            if (cd "${test_dir}" && python3 -m pytest "$(basename "${test_file}")" -v 2>/dev/null) || \
-               (cd "${test_dir}" && python3 -m unittest "$(basename "${test_file}" .py)" -v 2>&1); then
-                ((passed++))
-            else
-                ((failed++))
-            fi
+        if (cd "${test_dir}" && python3 -m pytest "${test_files[@]}" -v 2>/dev/null); then
+            ((passed += 1))
+        elif [[ ${#test_files[@]} -eq 1 ]] && \
+             (cd "${test_dir}" && python3 -m unittest "$(basename "${test_files[0]}" .py)" -v 2>&1); then
+            ((passed += 1))
+        else
+            ((failed += 1))
         fi
-        ((total++))
+        ((total += 1))
     done
 
     echo ""

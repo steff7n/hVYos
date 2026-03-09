@@ -99,8 +99,13 @@ test-installer:
 
 test-build-container:
 	@echo "── build-with-container script tests ──"
-	python3 -m pytest build/testing/test_build_with_container.py -v 2>/dev/null \
-		|| python3 -m unittest build.testing.test_build_with_container -v
+	python3 -m pytest build/testing/test_build_with_container.py \
+		build/testing/test_build_entrypoints.py \
+		build/testing/test_runtime_configs.py -v 2>/dev/null \
+		|| python3 -m unittest \
+			build.testing.test_build_with_container \
+			build.testing.test_build_entrypoints \
+			build.testing.test_runtime_configs -v
 
 # ── Validation ──
 validate:

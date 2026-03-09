@@ -56,6 +56,9 @@ sddm
 # App launcher (§8.3)
 fuzzel
 
+# Terminal
+foot
+
 # Status bar — Waybar until custom Linta bar is built (§7.3)
 waybar
 
@@ -201,7 +204,6 @@ layout {
 }
 
 spawn-at-startup "waybar"
-spawn-at-startup "swaybg" "-m" "fill" "-i" "/usr/share/backgrounds/linta/default.png"
 
 screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d-%H-%M-%S.png"
 
