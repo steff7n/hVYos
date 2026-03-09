@@ -6,8 +6,9 @@
 # Spec reference: README.md §1–§4, §8.2, §11
 
 # --- Installation source ---
-# Fedora base repos — version is set at build time via ksflatten or sed
-url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
+# Fedora base repos — use explicit repo entries because livecd-tools on F42
+# does not convert `url --mirrorlist` into a DNF repo for image composition.
+repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
 repo --name=updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=$basearch
 
 # --- Locale & Input ---
@@ -66,7 +67,6 @@ linux-firmware
 zsh
 zsh-syntax-highlighting
 util-linux
-util-linux-user
 
 # Terminal editor
 # helix — custom RPM needed, not in Fedora repos
@@ -104,8 +104,7 @@ git-lfs
 wget2-wget
 jq
 
-# Archive tools
-tar
+# Archive tools (@core provides tar)
 unzip
 p7zip
 p7zip-plugins
@@ -150,6 +149,16 @@ chrony
 # --- Btrfs mount options: add compress=zstd to fstab (§3.1) ---
 sed -i 's|subvol=@\b|subvol=@,compress=zstd:1|' /etc/fstab
 sed -i 's|subvol=@home\b|subvol=@home,compress=zstd:1|' /etc/fstab
+
+# --- Ensure vmlinuz + initramfs in /boot for livecd-creator (boot loop fix) ---
+for kver in /lib/modules/*/; do
+  kver="${kver#/lib/modules/}"
+  kver="${kver%/}"
+  [ "$kver" = "*" ] && break
+  [ -f "/usr/lib/modules/${kver}/vmlinuz" ] && [ ! -f "/boot/vmlinuz-${kver}" ] && \
+    cp -a "/usr/lib/modules/${kver}/vmlinuz" "/boot/vmlinuz-${kver}"
+  dracut -f --no-hostonly "/boot/initramfs-${kver}.img" "$kver" 2>/dev/null || true
+done
 
 # --- Set zsh as default shell for new users (§8.2) ---
 sed -i 's|^SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd

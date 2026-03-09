@@ -17,7 +17,6 @@ flameshot
 
 # Clipboard (Wayland)
 wl-clipboard
-cliphist
 
 # Audio stack (§3.6)
 pipewire
@@ -56,7 +55,7 @@ kwin-wayland
 xorg-x11-server-Xwayland
 
 # KDE integration
-systemsettings
+plasma-systemsettings
 powerdevil
 plasma-nm
 plasma-pa
@@ -84,7 +83,7 @@ waybar
 mako
 swaylock
 qt5-qtwayland
-polkit-gnome
+lxqt-policykit
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-wlr
@@ -150,7 +149,7 @@ export SDL_VIDEODRIVER=wayland
 export CLUTTER_BACKEND=wayland
 export GDK_BACKEND=wayland
 
-/usr/libexec/polkit-gnome-authentication-agent-1 &
+/usr/libexec/lxqt-policykit-agent &
 mako &
 exec niri
 SESSION

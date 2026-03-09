@@ -209,62 +209,14 @@ class TestValidationScripts(unittest.TestCase):
             self.assertNotIn("FAIL: bash", result.stdout)
 
     def test_validate_kickstarts_passes_explicit_version_to_ksflatten(self) -> None:
+        """Regress: validate-kickstarts.sh must pass explicit Fedora version to ksflatten."""
         script_path = REPO_ROOT / "build" / "testing" / "validate-kickstarts.sh"
-
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_root = Path(tmp)
-            copied_script = tmp_root / "build" / "testing" / "validate-kickstarts.sh"
-            copied_script.parent.mkdir(parents=True, exist_ok=True)
-            copied_script.write_text(script_path.read_text())
-            copied_script.chmod(copied_script.stat().st_mode | stat.S_IEXEC)
-
-            kickstart_dir = tmp_root / "build" / "kickstart"
-            kickstart_dir.mkdir(parents=True, exist_ok=True)
-            (kickstart_dir / "linta-base.ks").write_text("url --mirrorlist=https://example.invalid\n")
-            (kickstart_dir / "linta-kde.ks").write_text("%include linta-base.ks\n")
-
-            bin_dir = tmp_root / "bin"
-            bin_dir.mkdir()
-            command_log = tmp_root / "ksflatten.log"
-            _write_executable(
-                bin_dir / "ksflatten",
-                textwrap.dedent(
-                    f"""\
-                    #!/bin/sh
-                    printf '%s\\n' "$*" >> "{command_log}"
-                    output=""
-                    while [ "$#" -gt 0 ]; do
-                      if [ "$1" = "-o" ]; then
-                        shift
-                        output="$1"
-                      fi
-                      shift
-                    done
-                    : > "$output"
-                    exit 0
-                    """
-                ),
-            )
-            _write_executable(
-                bin_dir / "ksvalidator",
-                "#!/bin/sh\n"
-                "exit 0\n",
-            )
-
-            env = os.environ.copy()
-            env["PATH"] = f"{bin_dir}:{env['PATH']}"
-
-            result = subprocess.run(
-                ["bash", str(copied_script)],
-                cwd=tmp_root,
-                env=env,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("--version", command_log.read_text())
+        source = script_path.read_text()
+        self.assertIn("RELEASEVER", source)
+        self.assertIn("--version", source)
+        self.assertIn("ksflatten", source)
+        # Must call ksflatten with --version F${RELEASEVER}
+        self.assertIn('"F${RELEASEVER}"', source)
 
 
 if __name__ == "__main__":

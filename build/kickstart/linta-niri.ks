@@ -17,7 +17,6 @@ flameshot
 
 # Clipboard (Wayland)
 wl-clipboard
-cliphist
 
 # Audio stack (§3.6)
 pipewire
@@ -78,7 +77,7 @@ qt6-qtwayland
 qt5-qtwayland
 
 # Polkit agent (needed for GUI privilege escalation without KDE)
-polkit-gnome
+lxqt-policykit
 
 # xdg-desktop-portal for Flatpak/sandboxed app integration
 xdg-desktop-portal
@@ -151,7 +150,7 @@ export CLUTTER_BACKEND=wayland
 export GDK_BACKEND=wayland
 
 # Start polkit agent in background
-/usr/libexec/polkit-gnome-authentication-agent-1 &
+/usr/libexec/lxqt-policykit-agent &
 
 # Start mako notification daemon
 mako &

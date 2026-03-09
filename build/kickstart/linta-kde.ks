@@ -57,7 +57,7 @@ kwin-wayland
 xorg-x11-server-Xwayland
 
 # KDE system integration
-systemsettings
+plasma-systemsettings
 powerdevil
 plasma-nm
 plasma-pa
