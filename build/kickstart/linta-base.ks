@@ -117,10 +117,6 @@ bc
 btrfs-progs
 snapper
 grub2-tools
-grub2-efi-x64
-grub2-efi-x64-modules
-shim-x64
-efibootmgr
 firewalld
 NetworkManager
 NetworkManager-wifi
