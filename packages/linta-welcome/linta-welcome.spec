@@ -8,7 +8,6 @@ URL:            https://lintalinux.org
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
-BuildRequires:  python3-devel
 Requires:       python3 >= 3.12
 Requires:       python3-qt6
 Requires:       lintactl

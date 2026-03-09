@@ -1,0 +1,44 @@
+# Linta — Build RPMs and local repo, publish as artifacts
+name: Build RPMs
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+      - 'build/*'
+
+jobs:
+  build-rpms:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Build Linta builder image
+        run: |
+          podman build -t linta-builder -f build/Containerfile build
+
+      - name: Build all RPMs
+        run: |
+          podman run --rm -v "${{ github.workspace }}:/workspace:z" linta-builder build-rpm-all
+
+      - name: Create local repo
+        run: |
+          podman run --rm -v "${{ github.workspace }}:/workspace:z" linta-builder create-repo
+
+      - name: Upload RPMs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpms
+          path: build/output/rpms/
+
+      - name: Upload repo artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo
+          path: build/output/repo/

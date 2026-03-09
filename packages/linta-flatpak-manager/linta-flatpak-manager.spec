@@ -14,6 +14,12 @@ Requires:       flatpak
 Custom Flatpak management GUI for Linta Linux. Browse Flathub, install/update/remove
 Flatpak applications, and manage permissions. Themed to match Linta's visual identity.
 
+%prep
+%autosetup
+
+%build
+# Pure Python, no build step
+
 %install
 install -Dm755 linta_flatpak_manager.py %{buildroot}%{_bindir}/linta-flatpak-manager
 install -Dm644 linta-flatpak-manager.desktop %{buildroot}%{_datadir}/applications/linta-flatpak-manager.desktop

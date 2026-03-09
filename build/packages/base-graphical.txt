@@ -34,4 +34,4 @@ dejavu-sans-fonts
 dejavu-sans-mono-fonts
 
 # NTP
-systemd-timesyncd
+systemd

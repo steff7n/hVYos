@@ -39,14 +39,19 @@ help:
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test              Run all Python unit tests"
-	@echo "  make test-lintactl     Run lintactl tests only"
-	@echo "  make test-snapshots    Run linta-snapshots tests only"
-	@echo "  make test-nvidia       Run linta-nvidia tests only"
+	@echo "  make test-lintactl         Run lintactl tests only"
+	@echo "  make test-snapshots        Run linta-snapshots tests only"
+	@echo "  make test-nvidia           Run linta-nvidia tests only"
+	@echo "  make test-welcome          Run linta-welcome tests only"
+	@echo "  make test-flatpak-manager  Run linta-flatpak-manager tests only"
+	@echo "  make test-keybindings      Run linta-keybindings tests only"
+	@echo "  make test-installer        Run installer tests only"
+	@echo "  make test-build-container  Run build-with-container script tests only"
 	@echo "  make validate          Validate package manifests + kickstart files"
 	@echo ""
 	@echo "Building:"
-	@echo "  make rpms              Build all custom Linta RPMs (requires mock)"
-	@echo "  make rpm-<package>     Build a single package RPM"
+	@echo "  make rpms              Build all custom Linta RPMs (uses container when available, else local rpmbuild)"
+	@echo "  make rpm-<package>     Build a single package RPM (local rpmbuild)"
 	@echo "  make iso PROFILE=kde   Build ISO for a profile (bare|kde|niri|combined)"
 	@echo ""
 	@echo "Maintenance:"
@@ -54,7 +59,7 @@ help:
 	@echo "  make lint              Run basic linting on Python files"
 
 # ── Tests ──
-test: test-lintactl test-snapshots test-nvidia
+test: test-lintactl test-snapshots test-nvidia test-welcome test-flatpak-manager test-keybindings test-installer test-build-container
 	@echo "All tests passed."
 
 test-lintactl:
@@ -72,6 +77,31 @@ test-nvidia:
 	cd packages/linta-nvidia && python3 -m pytest test_linta_nvidia.py -v 2>/dev/null \
 		|| python3 -m unittest test_linta_nvidia -v
 
+test-welcome:
+	@echo "── linta-welcome tests ──"
+	cd packages/linta-welcome && python3 -m pytest test_linta_welcome.py -v 2>/dev/null \
+		|| python3 -m unittest test_linta_welcome -v
+
+test-flatpak-manager:
+	@echo "── linta-flatpak-manager tests ──"
+	cd packages/linta-flatpak-manager && python3 -m pytest test_linta_flatpak_manager.py -v 2>/dev/null \
+		|| python3 -m unittest test_linta_flatpak_manager -v
+
+test-keybindings:
+	@echo "── linta-keybindings tests ──"
+	cd packages/linta-keybindings && python3 -m pytest test_linta_keybindings.py -v 2>/dev/null \
+		|| python3 -m unittest test_linta_keybindings -v
+
+test-installer:
+	@echo "── installer tests ──"
+	cd installer && python3 -m pytest test_linta_installer.py -v 2>/dev/null \
+		|| python3 -m unittest test_linta_installer -v
+
+test-build-container:
+	@echo "── build-with-container script tests ──"
+	python3 -m pytest build/testing/test_build_with_container.py -v 2>/dev/null \
+		|| python3 -m unittest build.testing.test_build_with_container -v
+
 # ── Validation ──
 validate:
 	@echo "── Package manifest validation ──"
@@ -88,14 +118,26 @@ lint:
 	@echo "All files compile successfully."
 
 # ── RPM Building ──
-# Requires: rpm-build, rpmdevtools, mock
-# These create source tarballs and build via rpmbuild or mock.
+# make rpms: prefers container (scripts/build-with-container.sh build-rpm-all) when the
+# script exists and is executable; falls back to local rpmbuild otherwise. Container
+# output: build/output/rpms/. Local output: $(RPM_BUILD)/RPMS/.
+# make rpm-<pkg>: always uses local rpmbuild (single-package).
+# Local build requires: rpm-build, rpmdevtools (mock optional).
+
+CONTAINER_BUILD_SCRIPT := $(PROJECT_ROOT)/scripts/build-with-container.sh
 
 $(RPM_BUILD):
 	mkdir -p $(RPM_BUILD)/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
-rpms: $(addprefix rpm-,$(LINTA_PACKAGES))
-	@echo "All Linta RPMs built. Output: $(RPM_BUILD)/RPMS/"
+rpms:
+	@if [ -x "$(CONTAINER_BUILD_SCRIPT)" ]; then \
+		echo "Building all RPMs in container (output: build/output/rpms/)"; \
+		"$(CONTAINER_BUILD_SCRIPT)" build-rpm-all; \
+	else \
+		echo "Container script not available, using local rpmbuild (output: $(RPM_BUILD)/RPMS/)"; \
+		$(MAKE) --no-print-directory $(addprefix rpm-,$(LINTA_PACKAGES)); \
+		echo "All Linta RPMs built. Output: $(RPM_BUILD)/RPMS/"; \
+	fi
 
 define RPM_TEMPLATE
 rpm-$(1): $(RPM_BUILD)

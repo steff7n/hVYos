@@ -4,7 +4,9 @@
 import io
 import json
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import linta_snapshots
@@ -147,6 +149,44 @@ class TestCmdCreate(unittest.TestCase):
             linta_snapshots.cmd_create(args)
         call_args = mock_run.call_args_list[0][0][0]
         self.assertIn("manual-20250309-120000", call_args)
+
+
+class TestUpdateGrubEntries(unittest.TestCase):
+    """Tests for _update_grub_entries()."""
+
+    @patch("linta_snapshots._parse_snapper_list")
+    @patch("linta_snapshots._run")
+    def test_update_grub_entries_embeds_concrete_uuid(self, mock_run, mock_parse):
+        mock_parse.return_value = [
+            {
+                "number": "42",
+                "type": "single",
+                "date": "2025-03-09 12:00:00",
+                "description": "manual",
+                "cleanup": "number",
+            }
+        ]
+
+        def run_side_effect(cmd, check=True):
+            if cmd == ["findmnt", "-n", "-o", "UUID", "/"]:
+                return MagicMock(stdout="1234-ABCD\n")
+            if cmd[:2] == ["grub2-mkconfig", "-o"]:
+                return MagicMock(stdout="")
+            raise AssertionError(f"Unexpected command: {cmd}")
+
+        mock_run.side_effect = run_side_effect
+
+        with tempfile.TemporaryDirectory() as tmp:
+            grub_snapshot_cfg = Path(tmp) / "45_linta_snapshots"
+            grub_cfg = Path(tmp) / "grub.cfg"
+            with patch("linta_snapshots.GRUB_SNAPSHOT_CFG", grub_snapshot_cfg), patch(
+                "linta_snapshots.GRUB_CFG", grub_cfg
+            ):
+                linta_snapshots._update_grub_entries()
+
+            output = grub_snapshot_cfg.read_text()
+            self.assertIn("1234-ABCD", output)
+            self.assertNotIn("$btrfs_uuid", output)
 
 
 if __name__ == "__main__":

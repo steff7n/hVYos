@@ -56,6 +56,12 @@ COMMON_LOCALES = [
 ]
 
 
+def _partition_device(disk: str, number: int) -> str:
+    """Return partition device path (e.g. /dev/nvme0n1p1 or /dev/sda1)."""
+    suffix = f"p{number}" if disk[-1].isdigit() else str(number)
+    return f"{disk}{suffix}"
+
+
 @dataclass
 class InstallState:
     """Collected installer choices."""
@@ -478,17 +484,17 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
         # Phase 2: Format and Btrfs
         log("Formatting partitions...")
         subprocess.run(
-            ["mkfs.vfat", "-F", "32", "-n", "EFI", f"{disk}1"],
+            ["mkfs.vfat", "-F", "32", "-n", "EFI", _partition_device(disk, 1)],
             check=True,
             capture_output=True,
         )
         subprocess.run(
-            ["mkfs.ext4", "-L", "boot", f"{disk}2"],
+            ["mkfs.ext4", "-L", "boot", _partition_device(disk, 2)],
             check=True,
             capture_output=True,
         )
 
-        btrfs_part = f"{disk}3"
+        btrfs_part = _partition_device(disk, 3)
         if state.luks:
             log("Setting up LUKS2...")
             proc = subprocess.Popen(
@@ -546,13 +552,13 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
         )
         subprocess.run(["mkdir", "-p", str(root / "boot")], check=True, capture_output=True)
         subprocess.run(
-            ["mount", f"{disk}2", str(root / "boot")],
+            ["mount", _partition_device(disk, 2), str(root / "boot")],
             check=True,
             capture_output=True,
         )
         subprocess.run(["mkdir", "-p", str(root / "boot/efi")], check=True, capture_output=True)
         subprocess.run(
-            ["mount", f"{disk}1", str(root / "boot/efi")],
+            ["mount", _partition_device(disk, 1), str(root / "boot/efi")],
             check=True,
             capture_output=True,
         )

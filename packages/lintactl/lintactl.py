@@ -56,6 +56,11 @@ def _run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess[str]
     return subprocess.run(cmd, capture_output=True, text=True, check=check)
 
 
+def _is_valid_theme_name(theme_name: str) -> bool:
+    parts = Path(theme_name).parts
+    return len(parts) == 1 and parts[0] not in {"", ".", ".."}
+
+
 # --- Subcommands ---
 
 
@@ -71,10 +76,12 @@ def cmd_info(args: argparse.Namespace) -> None:
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
+    root_fs = "unknown"
     btrfs_status = "unknown"
     try:
         result = _run(["findmnt", "-n", "-o", "FSTYPE", "/"])
-        btrfs_status = "active" if result.stdout.strip() == "btrfs" else result.stdout.strip()
+        root_fs = result.stdout.strip() or "unknown"
+        btrfs_status = "active" if root_fs == "btrfs" else "inactive"
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
@@ -88,7 +95,8 @@ def cmd_info(args: argparse.Namespace) -> None:
     print(f"  Profile:    {profile}")
     print(f"  Theme:      {theme}")
     print(f"  Kernel:     {kernel}")
-    print(f"  Filesystem: Btrfs ({btrfs_status})")
+    fs_label = "Btrfs (active)" if root_fs == "btrfs" else root_fs
+    print(f"  Filesystem: {fs_label}")
     print(f"  SELinux:    {selinux}")
 
     if args.json:
@@ -98,6 +106,7 @@ def cmd_info(args: argparse.Namespace) -> None:
             "profile": profile,
             "theme": theme,
             "kernel": kernel,
+            "filesystem": root_fs,
             "btrfs": btrfs_status,
             "selinux": selinux,
         }
@@ -154,6 +163,14 @@ def cmd_theme_set(args: argparse.Namespace) -> None:
     """Switch the active theme."""
     theme_name = args.name
     theme_dir = THEMES_DIR / theme_name
+    resolved_theme_dir = theme_dir.resolve(strict=False)
+    resolved_themes_dir = THEMES_DIR.resolve(strict=False)
+
+    if not _is_valid_theme_name(theme_name) or not resolved_theme_dir.is_relative_to(
+        resolved_themes_dir
+    ):
+        print(f"  Error: invalid theme name '{theme_name}'.")
+        sys.exit(1)
 
     if not theme_dir.exists():
         print(f"  Error: theme '{theme_name}' not found.")

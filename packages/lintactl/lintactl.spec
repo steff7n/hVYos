@@ -8,8 +8,6 @@ URL:            https://lintalinux.org
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
 Requires:       python3 >= 3.12
 
 %description
@@ -23,16 +21,13 @@ Does NOT wrap standard system tools (dnf, btrfs, systemctl).
 %autosetup
 
 %build
-%py3_build
+# Pure Python, no build step
 
 %install
-%py3_install
-install -Dm644 lintactl.py %{buildroot}%{_datadir}/linta/lintactl.py
+install -Dm755 lintactl.py %{buildroot}%{_bindir}/lintactl
 
 %files
 %{_bindir}/lintactl
-%{python3_sitelib}/lintactl*
-%dir %{_datadir}/linta
 
 %changelog
 * Sun Mar 08 2026 Linta Project <dev@lintalinux.org> - 0.1.0-1

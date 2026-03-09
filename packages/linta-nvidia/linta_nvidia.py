@@ -181,6 +181,13 @@ def _determine_driver_branch(gpus: list[GpuInfo]) -> str:
     return ""
 
 
+def _rpm_fusion_releasever() -> str:
+    try:
+        return _run(["rpm", "-E", "%fedora"]).stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+
+
 def cmd_status(args: argparse.Namespace) -> None:
     """Show NVIDIA GPU status."""
     status = get_status()
@@ -283,28 +290,26 @@ def _enable_rpm_fusion() -> None:
     except FileNotFoundError:
         pass
 
+    fedora_ver = _rpm_fusion_releasever()
+    if not fedora_ver:
+        print("    Error enabling RPM Fusion: could not determine Fedora release.")
+        sys.exit(1)
+
+    free_url = (
+        f"https://mirrors.rpmfusion.org/free/fedora/"
+        f"rpmfusion-free-release-{fedora_ver}.noarch.rpm"
+    )
+    nonfree_url = (
+        f"https://mirrors.rpmfusion.org/nonfree/fedora/"
+        f"rpmfusion-nonfree-release-{fedora_ver}.noarch.rpm"
+    )
+
     try:
-        _run([
-            "dnf", "install", "-y",
-            "https://mirrors.rpmfusion.org/free/fedora/"
-            "rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
-            "https://mirrors.rpmfusion.org/nonfree/fedora/"
-            "rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm",
-        ])
+        _run(["dnf", "install", "-y", free_url, nonfree_url])
         print("    RPM Fusion enabled.")
     except subprocess.CalledProcessError as e:
-        # Try the shell-expanded version
-        try:
-            fedora_ver = _run(["rpm", "-E", "%fedora"]).stdout.strip()
-            _run([
-                "dnf", "install", "-y",
-                f"https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-{fedora_ver}.noarch.rpm",
-                f"https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{fedora_ver}.noarch.rpm",
-            ])
-            print("    RPM Fusion enabled.")
-        except subprocess.CalledProcessError:
-            print(f"    Error enabling RPM Fusion: {e.stderr}")
-            sys.exit(1)
+        print(f"    Error enabling RPM Fusion: {e.stderr}")
+        sys.exit(1)
 
 
 def _install_driver(package: str) -> None:

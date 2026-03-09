@@ -71,10 +71,10 @@ cmd_build_rpm_all() {
     for pkg in "${packages[@]}"; do
         echo "════════════════════════════════"
         if cmd_build_rpm "${pkg}" 2>&1; then
-            ((built++))
+            built=$((built + 1))
         else
             echo "FAILED: ${pkg}"
-            ((failed++))
+            failed=$((failed + 1))
         fi
         echo ""
     done

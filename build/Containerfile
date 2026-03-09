@@ -32,8 +32,7 @@ RUN dnf install -y \
     python3-pip \
     # Niri build deps
     clang-devel \
-    libwayland-client-devel \
-    libwayland-server-devel \
+    wayland-devel \
     wayland-protocols-devel \
     libinput-devel \
     libxkbcommon-devel \
@@ -53,7 +52,6 @@ RUN dnf install -y \
     python3-pytest \
     # General
     git \
-    curl \
     wget \
     jq \
     && dnf clean all

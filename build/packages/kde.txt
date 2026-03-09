@@ -15,7 +15,7 @@ xorg-x11-server-Xwayland
 # KDE core components
 dolphin
 konsole
-systemsettings
+plasma-systemsettings
 powerdevil
 plasma-nm
 plasma-pa

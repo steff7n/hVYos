@@ -8,8 +8,6 @@ URL:            https://lintalinux.org
 Source0:        %{name}-%{version}.tar.gz
 
 BuildArch:      noarch
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
 Requires:       python3 >= 3.12
 Requires:       snapper
 Requires:       btrfs-progs
@@ -36,6 +34,7 @@ install -Dm644 dnf_plugin_linta_snapshot.py \
 %files
 %{_bindir}/linta-snapshots
 %{python3_sitelib}/dnf-plugins/linta_snapshot.py
+%{python3_sitelib}/dnf-plugins/__pycache__/linta_snapshot.*
 
 %changelog
 * Sun Mar 08 2026 Linta Project <dev@lintalinux.org> - 0.1.0-1

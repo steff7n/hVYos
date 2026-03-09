@@ -2,7 +2,7 @@
 Type=Application
 Name=Linta Welcome
 Comment=First-boot setup wizard
-Exec=/bin/sh -c 'if [ ! -f /var/lib/linta/first-boot-done ]; then linta-welcome; fi'
+Exec=/bin/sh -c 'if [ ! -f "${XDG_STATE_HOME:-$HOME/.local/state}/linta/first-boot-done" ]; then linta-welcome; fi'
 Terminal=false
 NoDisplay=true
 X-GNOME-Autostart-enabled=true

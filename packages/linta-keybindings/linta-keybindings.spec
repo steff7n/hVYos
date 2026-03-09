@@ -14,6 +14,12 @@ Searchable keybinding reference overlay for Linta Linux. Activated by a hotkey,
 shows a filterable list of all keybindings for the current desktop environment
 (KDE Plasma or Niri compositor).
 
+%prep
+%autosetup
+
+%build
+# Pure Python, no build step
+
 %install
 install -Dm755 linta_keybindings.py %{buildroot}%{_bindir}/linta-keybindings
 
