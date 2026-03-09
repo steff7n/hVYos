@@ -18,11 +18,9 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Validate manifests
-        run: make validate
-
       - name: Run unit tests
         run: make test
+      # validate (manifest + kickstart) runs in container job only; needs Fedora dnf + ksvalidator
 
   container-build-and-test:
     runs-on: ubuntu-latest
