@@ -439,6 +439,7 @@ class TestCmdThemeSet(unittest.TestCase):
                 self.assertEqual(cm.exception.code, 1)
             output = capture.getvalue()
             self.assertIn("invalid theme name", output)
+            self.assertFalse(active_theme_file.exists())
             mock_run.assert_not_called()
 
 

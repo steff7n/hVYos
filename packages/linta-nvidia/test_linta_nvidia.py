@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import linta_nvidia
 from linta_nvidia import (
     GpuInfo,
     NvidiaStatus,
@@ -215,7 +216,7 @@ class TestEnableRpmFusion(unittest.TestCase):
 
         mock_run.side_effect = run_side_effect
 
-        _enable_rpm_fusion()
+        linta_nvidia._enable_rpm_fusion()
 
         dnf_calls = [cmd for cmd in calls if cmd[:3] == ["dnf", "install", "-y"]]
         self.assertEqual(len(dnf_calls), 1)

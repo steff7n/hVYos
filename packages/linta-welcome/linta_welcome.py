@@ -20,7 +20,6 @@ Spec reference: README.md §10.2
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import subprocess
 import sys

@@ -246,16 +246,15 @@ class OverlayWindow(QWidget):
     def showEvent(self, event) -> None:
         super().showEvent(event)
         screen = QApplication.primaryScreen()
-        if screen is not None:
-            rect = screen.availableGeometry()
-            self.setFixedSize(600, 500)
-            self.move(
-                rect.x() + (rect.width() - self.width()) // 2,
-                rect.y() + (rect.height() - self.height()) // 2,
-            )
-        else:
-            self.setFixedSize(600, 500)
+        self.setFixedSize(600, 500)
+        if screen is None:
             self.move(0, 0)
+            return
+        rect = screen.availableGeometry()
+        self.move(
+            rect.x() + (rect.width() - self.width()) // 2,
+            rect.y() + (rect.height() - self.height()) // 2,
+        )
 
     def focusOutEvent(self, event) -> None:
         # Close when focus leaves our window (e.g. user clicked outside)

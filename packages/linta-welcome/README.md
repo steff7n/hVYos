@@ -30,8 +30,9 @@ On first login after installation, this PyQt6 wizard guides the user through:
 ## First-boot trigger
 
 Uses XDG autostart (`/etc/xdg/autostart/linta-welcome.desktop`) that checks
-for `${XDG_STATE_HOME:-$HOME/.local/state}/linta/first-boot-done`. Once the wizard completes, this marker
-file is created and the wizard won't run again automatically.
+for `${XDG_STATE_HOME:-$HOME/.local/state}/linta/first-boot-done`. Once the
+wizard completes, this per-user marker file is created and the wizard won't run
+again automatically for that account.
 
 ## Profiles
 

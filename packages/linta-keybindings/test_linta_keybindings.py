@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for linta-keybindings (keybinding overlay). Tests run without display by mocking Qt."""
+"""Unit tests for linta-keybindings (runs without display)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Mock PyQt6 so module can be imported without a display
+# Mock PyQt6 so overlay test can run without display; avoids offscreen hangs
 for mod in ("PyQt6", "PyQt6.QtCore", "PyQt6.QtGui", "PyQt6.QtWidgets"):
     if mod not in sys.modules:
         sys.modules[mod] = MagicMock()
@@ -151,7 +151,6 @@ class TestOverlayWindow(unittest.TestCase):
         """showEvent() must not crash when primaryScreen() returns None."""
         window = linta_keybindings.OverlayWindow([])
         with patch("linta_keybindings.QApplication.primaryScreen", return_value=None):
-            # Should not raise AttributeError
             event = MagicMock()
             window.showEvent(event)
 
