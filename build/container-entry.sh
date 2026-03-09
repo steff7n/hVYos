@@ -135,7 +135,8 @@ cmd_build_iso() {
     fi
 
     echo "Building ISO: ${profile}"
-    mkdir -p "${ISO_OUTPUT}"
+    rm -rf "${ISO_OUTPUT}"
+    mkdir -p "$(dirname "${ISO_OUTPUT}")"
 
     local flat_ks
     flat_ks="$(mktemp)"
@@ -151,16 +152,21 @@ cmd_build_iso() {
     timestamp="$(date +%Y%m%d)"
     local iso_name="linta-${profile}-42-x86_64-${timestamp}.iso"
 
-    livemedia-creator \
-        --ks="${flat_ks}" \
-        --no-virt \
-        --resultdir="${ISO_OUTPUT}" \
-        --project="Linta" \
-        --releasever="42" \
-        --volid="Linta-${profile}" \
-        --iso-only \
-        --iso-name="${iso_name}" \
+    mkdir -p "${ISO_OUTPUT}"
+
+    livecd-creator \
+        --config="${flat_ks}" \
+        --fslabel="Linta-${profile}" \
+        --cache="/var/cache/livecd" \
+        --tmpdir="/var/tmp" \
         2>&1 | tee "${ISO_OUTPUT}/build-${profile}.log"
+
+    # livecd-creator outputs to cwd; move to ISO_OUTPUT
+    local livecd_iso
+    livecd_iso="$(ls Linta-${profile}*.iso 2>/dev/null | head -1)"
+    if [[ -n "${livecd_iso}" ]]; then
+        mv "${livecd_iso}" "${ISO_OUTPUT}/${iso_name}"
+    fi
 
     rm -f "${flat_ks}"
 
