@@ -1,0 +1,44 @@
+# Linta — CI: validate manifests, run tests, optional container build
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate manifests
+        run: make validate
+
+      - name: Run unit tests
+        run: make test
+
+  container-build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Build Linta builder image
+        run: |
+          podman build -t linta-builder -f build/Containerfile build
+
+      - name: Validate and test inside container
+        run: |
+          podman run --rm -v "${{ github.workspace }}:/workspace:z" linta-builder validate
+          podman run --rm -v "${{ github.workspace }}:/workspace:z" linta-builder test

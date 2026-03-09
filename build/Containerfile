@@ -1,0 +1,69 @@
+# Linta Linux — Build Environment Container
+# Fedora-based container for building RPMs and assembling ISOs.
+#
+# Usage:
+#   podman build -t linta-builder build/
+#   podman run --rm -v ./:/workspace:z linta-builder make test
+#   podman run --rm --privileged -v ./:/workspace:z linta-builder build-rpm lintactl
+
+FROM registry.fedoraproject.org/fedora:42
+
+RUN dnf install -y \
+    # RPM build tools
+    rpm-build \
+    rpmdevtools \
+    rpmlint \
+    mock \
+    createrepo_c \
+    # ISO build tools
+    lorax \
+    livecd-tools \
+    pykickstart \
+    # Rust toolchain (for niri, helix)
+    cargo \
+    rust \
+    # Meson (for swaylock-effects)
+    meson \
+    gcc \
+    # Build dependencies common across packages
+    pkg-config \
+    python3-devel \
+    python3-setuptools \
+    python3-pip \
+    # Niri build deps
+    clang-devel \
+    libwayland-client-devel \
+    libwayland-server-devel \
+    wayland-protocols-devel \
+    libinput-devel \
+    libxkbcommon-devel \
+    mesa-libgbm-devel \
+    mesa-libEGL-devel \
+    libseat-devel \
+    pipewire-devel \
+    pango-devel \
+    cairo-devel \
+    systemd-devel \
+    # Swaylock-effects build deps
+    wayland-devel \
+    gdk-pixbuf2-devel \
+    pam-devel \
+    scdoc \
+    # Testing
+    python3-pytest \
+    # General
+    git \
+    curl \
+    wget \
+    jq \
+    && dnf clean all
+
+RUN rpmdev-setuptree
+
+WORKDIR /workspace
+
+COPY container-entry.sh /usr/local/bin/container-entry
+RUN chmod +x /usr/local/bin/container-entry
+
+ENTRYPOINT ["container-entry"]
+CMD ["help"]
