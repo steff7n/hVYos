@@ -20,7 +20,7 @@ Spec reference: README.md §10.2
 from __future__ import annotations
 
 import argparse
-import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -38,7 +38,8 @@ from PyQt6.QtWidgets import (
 VERSION = "0.1.0"
 RELEASE_FILE = Path("/etc/linta-release")
 THEMES_DIR = Path("/usr/share/linta/themes")
-FIRST_BOOT_MARKER = Path("/var/lib/linta/first-boot-done")
+STATE_HOME = Path(os.environ.get("XDG_STATE_HOME", str(Path.home() / ".local" / "state")))
+FIRST_BOOT_MARKER = STATE_HOME / "linta" / "first-boot-done"
 
 
 def _get_profile() -> str:
@@ -642,8 +643,11 @@ class LintaWelcomeWizard(QWizard):
                 self._apply_theme(theme)
 
         # Mark first boot as done
-        FIRST_BOOT_MARKER.parent.mkdir(parents=True, exist_ok=True)
-        FIRST_BOOT_MARKER.write_text("done\n")
+        try:
+            FIRST_BOOT_MARKER.parent.mkdir(parents=True, exist_ok=True)
+            FIRST_BOOT_MARKER.write_text("done\n")
+        except OSError as exc:
+            print(f"Warning: could not write first-boot marker: {exc}", file=sys.stderr)
 
         super().accept()
 

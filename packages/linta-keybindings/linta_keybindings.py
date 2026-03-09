@@ -245,8 +245,12 @@ class OverlayWindow(QWidget):
 
     def showEvent(self, event) -> None:
         super().showEvent(event)
-        rect = QApplication.primaryScreen().availableGeometry()
+        screen = QApplication.primaryScreen()
         self.setFixedSize(600, 500)
+        if screen is None:
+            self.move(0, 0)
+            return
+        rect = screen.availableGeometry()
         self.move(
             rect.x() + (rect.width() - self.width()) // 2,
             rect.y() + (rect.height() - self.height()) // 2,

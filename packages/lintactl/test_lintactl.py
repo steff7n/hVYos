@@ -241,6 +241,34 @@ class TestCmdInfo(unittest.TestCase):
             self.assertEqual(data["btrfs"], "active")
             self.assertEqual(data["selinux"], "Enforcing")
 
+    def test_cmd_info_non_btrfs_prints_actual_filesystem(self) -> None:
+        """Non-Btrfs roots should not be labeled as Btrfs."""
+        release_content = "VERSION=1.0\nVARIANT_ID=kde\nNAME=Linta\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            release_file = Path(tmp) / "linta-release"
+            release_file.write_text(release_content)
+            theme_file = Path(tmp) / "active-theme"
+            theme_file.write_text("linta-kde-default\n")
+
+            mock_run = MagicMock()
+            mock_run.side_effect = [
+                MagicMock(stdout="6.6.126\n"),
+                MagicMock(stdout="ext4\n"),
+                MagicMock(stdout="Enforcing\n"),
+            ]
+
+            args = MagicMock(json=False)
+            with patch("lintactl.RELEASE_FILE", release_file), patch(
+                "lintactl.ACTIVE_THEME_FILE", theme_file
+            ), patch("lintactl.subprocess.run", mock_run):
+                capture = StringIO()
+                with patch("sys.stdout", capture):
+                    lintactl.cmd_info(args)
+
+            output = capture.getvalue()
+            self.assertIn("Filesystem: ext4", output)
+            self.assertNotIn("Filesystem: Btrfs (ext4)", output)
+
 
 class TestCmdProfile(unittest.TestCase):
     """Tests for cmd_profile()."""
@@ -385,6 +413,33 @@ class TestCmdThemeSet(unittest.TestCase):
                 active_theme_file.read_text().strip(), "good-theme"
             )
             mock_run.assert_called_once()
+
+    def test_cmd_theme_set_rejects_path_traversal(self) -> None:
+        """Theme names must not escape the configured themes directory."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            themes_dir = root / "themes"
+            themes_dir.mkdir()
+            evil_theme = root / "evil"
+            evil_theme.mkdir()
+            (evil_theme / "apply.sh").write_text("#!/bin/bash\necho 'evil'\n")
+            active_theme_file = root / "etc" / "active-theme"
+
+            args = MagicMock()
+            args.name = "../evil"
+
+            mock_run = MagicMock(return_value=MagicMock(stdout="evil\n", returncode=0))
+            with patch("lintactl.THEMES_DIR", themes_dir), patch(
+                "lintactl.ACTIVE_THEME_FILE", active_theme_file
+            ), patch("lintactl.subprocess.run", mock_run):
+                capture = StringIO()
+                with patch("sys.stdout", capture):
+                    with self.assertRaises(SystemExit) as cm:
+                        lintactl.cmd_theme_set(args)
+
+            self.assertEqual(cm.exception.code, 1)
+            self.assertFalse(active_theme_file.exists())
+            mock_run.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Linta Welcome — first-boot trigger (user service)
 # Runs the welcome wizard on first login after installation.
-# Once complete, the wizard writes /var/lib/linta/first-boot-done
+# Once complete, the wizard writes ~/.local/state/linta/first-boot-done
 # and the XDG autostart entry checks for this marker.
 
 [Unit]
@@ -10,7 +10,7 @@ After=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/linta-welcome
-ExecStartPre=/bin/sh -c '[ ! -f /var/lib/linta/first-boot-done ]'
+ExecStartPre=/bin/sh -c '[ ! -f "${XDG_STATE_HOME:-$HOME/.local/state}/linta/first-boot-done" ]'
 
 [Install]
 WantedBy=default.target

@@ -63,6 +63,14 @@ def _parse_snapper_list() -> list[dict[str, str]]:
     return snapshots
 
 
+def _get_root_uuid() -> str:
+    try:
+        result = _run(["findmnt", "-n", "-o", "UUID", "/"])
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+
+
 def cmd_list(args: argparse.Namespace) -> None:
     """List all Btrfs snapshots."""
     snapshots = _parse_snapper_list()
@@ -106,7 +114,11 @@ def cmd_create(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     if not args.no_grub:
-        _update_grub_entries()
+        try:
+            _update_grub_entries()
+        except RuntimeError as e:
+            print(f"  Error: {e}")
+            sys.exit(1)
 
 
 def cmd_rollback(args: argparse.Namespace) -> None:
@@ -141,7 +153,11 @@ def cmd_rollback(args: argparse.Namespace) -> None:
 def cmd_grub_update(args: argparse.Namespace) -> None:
     """Update GRUB menu with the last N snapshots."""
     _require_root()
-    _update_grub_entries()
+    try:
+        _update_grub_entries()
+    except RuntimeError as e:
+        print(f"  Error: {e}")
+        sys.exit(1)
     print("  GRUB menu updated.")
 
 
@@ -152,6 +168,10 @@ def _update_grub_entries() -> None:
 
     if not recent:
         return
+
+    root_uuid = _get_root_uuid()
+    if not root_uuid:
+        raise RuntimeError("could not determine root filesystem UUID for GRUB snapshots")
 
     script_lines = [
         "#!/bin/bash",
@@ -167,8 +187,8 @@ def _update_grub_entries() -> None:
         script_lines.extend([
             f'  menuentry "Snapshot #{num}: {desc} ({date})" {{',
             f'    insmod btrfs',
-            f'    search --no-floppy --fs-uuid --set=root $btrfs_uuid',
-            f'    linux /@/.snapshots/{num}/snapshot/vmlinuz root=UUID=$btrfs_uuid '
+            f'    search --no-floppy --fs-uuid --set=root {root_uuid}',
+            f'    linux /@/.snapshots/{num}/snapshot/vmlinuz root=UUID={root_uuid} '
             f'rootflags=subvol=@/.snapshots/{num}/snapshot ro rhgb quiet',
             f'    initrd /@/.snapshots/{num}/snapshot/initramfs.img',
             f'  }}',

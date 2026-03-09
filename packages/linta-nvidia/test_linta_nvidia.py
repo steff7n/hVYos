@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import linta_nvidia
 from linta_nvidia import (
     GpuInfo,
     NvidiaStatus,
@@ -195,6 +196,33 @@ class TestDetermineDriverBranch(unittest.TestCase):
         ]
         branch = _determine_driver_branch(gpus)
         self.assertEqual(branch, "")
+
+
+class TestEnableRpmFusion(unittest.TestCase):
+    @mock.patch("linta_nvidia._run")
+    def test_enable_rpm_fusion_uses_expanded_release_urls(self, mock_run):
+        calls = []
+
+        def run_side_effect(cmd, check=True):
+            calls.append(cmd)
+            if cmd[:2] == ["rpm", "-qa"]:
+                return _make_proc("")
+            if cmd == ["rpm", "-E", "%fedora"]:
+                return _make_proc("42\n")
+            if cmd[:3] == ["dnf", "install", "-y"]:
+                return _make_proc("")
+            raise AssertionError(f"Unexpected command: {cmd}")
+
+        mock_run.side_effect = run_side_effect
+
+        linta_nvidia._enable_rpm_fusion()
+
+        dnf_calls = [cmd for cmd in calls if cmd[:3] == ["dnf", "install", "-y"]]
+        self.assertEqual(len(dnf_calls), 1)
+        self.assertIn("rpmfusion-free-release-42.noarch.rpm", dnf_calls[0][3])
+        self.assertIn("rpmfusion-nonfree-release-42.noarch.rpm", dnf_calls[0][4])
+        self.assertNotIn("$(", dnf_calls[0][3])
+        self.assertNotIn("$(", dnf_calls[0][4])
 
 
 if __name__ == "__main__":

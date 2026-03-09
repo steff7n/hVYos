@@ -117,6 +117,11 @@ def get_timezones() -> list[str]:
         ]
 
 
+def _partition_device(disk: str, number: int) -> str:
+    suffix = f"p{number}" if disk[-1].isdigit() else str(number)
+    return f"{disk}{suffix}"
+
+
 def draw_header(win: curses.window, title: str, color: int) -> None:
     """Draw screen header."""
     h, w = win.getmaxyx()
@@ -477,18 +482,21 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
 
         # Phase 2: Format and Btrfs
         log("Formatting partitions...")
+        efi_partition = _partition_device(disk, 1)
+        boot_partition = _partition_device(disk, 2)
+        root_partition = _partition_device(disk, 3)
         subprocess.run(
-            ["mkfs.vfat", "-F", "32", "-n", "EFI", f"{disk}1"],
+            ["mkfs.vfat", "-F", "32", "-n", "EFI", efi_partition],
             check=True,
             capture_output=True,
         )
         subprocess.run(
-            ["mkfs.ext4", "-L", "boot", f"{disk}2"],
+            ["mkfs.ext4", "-L", "boot", boot_partition],
             check=True,
             capture_output=True,
         )
 
-        btrfs_part = f"{disk}3"
+        btrfs_part = root_partition
         if state.luks:
             log("Setting up LUKS2...")
             proc = subprocess.Popen(
@@ -546,13 +554,13 @@ def run_install(stdscr: curses.window, state: InstallState, color_acc: int) -> b
         )
         subprocess.run(["mkdir", "-p", str(root / "boot")], check=True, capture_output=True)
         subprocess.run(
-            ["mount", f"{disk}2", str(root / "boot")],
+            ["mount", boot_partition, str(root / "boot")],
             check=True,
             capture_output=True,
         )
         subprocess.run(["mkdir", "-p", str(root / "boot/efi")], check=True, capture_output=True)
         subprocess.run(
-            ["mount", f"{disk}1", str(root / "boot/efi")],
+            ["mount", efi_partition, str(root / "boot/efi")],
             check=True,
             capture_output=True,
         )
