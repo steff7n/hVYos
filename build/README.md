@@ -20,8 +20,9 @@ From project root:
 # Create local YUM repo from built RPMs (for ISO builds)
 ./scripts/build-with-container.sh create-repo
 
-# Build an ISO (requires --privileged and a pre-created repo recommended)
-podman run --rm --privileged -v "$(pwd):/workspace:z" linta-builder build-iso kde
+# Build an ISO (requires --privileged, --network=host, and loop module)
+sudo modprobe loop   # one-time, needed for livecd-creator loopback mounts
+podman run --rm --privileged --network=host -v "$(pwd):/workspace:z" linta-builder build-iso kde
 ```
 
 Use `LINTA_CONTAINER_RUNTIME=docker` if you use Docker instead of Podman.
