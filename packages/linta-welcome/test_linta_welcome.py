@@ -124,18 +124,18 @@ class TestFileManagerOptions(unittest.TestCase):
 class TestThemePickerOptions(unittest.TestCase):
     """Tests for ThemePickerPage._get_options() (pure logic)."""
 
-    def test_get_options_kde_has_linta_and_breeze(self) -> None:
+    def test_get_options_kde_only_lists_supported_choices(self) -> None:
         opts = linta_welcome.ThemePickerPage._get_options("kde")
         names = [o["name"] for o in opts]
         self.assertIn("Linta (KDE)", names)
-        self.assertIn("Breeze", names)
+        self.assertNotIn("Breeze", names)
 
-    def test_get_options_niri_has_rices(self) -> None:
+    def test_get_options_niri_has_supported_rices_only(self) -> None:
         opts = linta_welcome.ThemePickerPage._get_options("niri")
         names = [o["name"] for o in opts]
         self.assertIn("Dusk", names)
         self.assertIn("Frost", names)
-        self.assertIn("Vanilla Niri", names)
+        self.assertNotIn("Vanilla Niri", names)
 
     def test_get_options_combined_has_both(self) -> None:
         opts = linta_welcome.ThemePickerPage._get_options("combined")
@@ -176,15 +176,30 @@ class TestThemeMap(unittest.TestCase):
     """Tests for theme name to theme_id mapping used in _apply_theme."""
 
     def test_theme_map_covers_niri_rices_and_kde(self) -> None:
-        theme_map = {
-            "Dusk": "linta-niri-rice-1",
-            "Frost": "linta-niri-rice-2",
-            "Forest": "linta-niri-rice-3",
-            "Ember": "linta-niri-rice-4",
-            "Linta (KDE)": "linta-kde-default",
-        }
-        self.assertEqual(theme_map["Linta (KDE)"], "linta-kde-default")
-        self.assertEqual(theme_map["Dusk"], "linta-niri-rice-1")
+        self.assertEqual(linta_welcome._theme_id_for_name("Linta (KDE)"), "linta-kde-default")
+        self.assertEqual(linta_welcome._theme_id_for_name("Dusk"), "linta-niri-rice-1")
+        self.assertEqual(linta_welcome._theme_id_for_name("Frost"), "linta-niri-rice-2")
+        self.assertEqual(linta_welcome._theme_id_for_name("Unknown"), "")
+
+
+class TestLocaleApplication(unittest.TestCase):
+    """Tests for timezone/locale application helpers."""
+
+    @patch("linta_welcome._run")
+    def test_apply_locale_settings_uses_privileged_system_tools(self, mock_run) -> None:
+        mock_run.return_value = MagicMock(returncode=0)
+
+        result = linta_welcome._apply_locale_settings("pl_PL.UTF-8", "Europe/Warsaw")
+
+        self.assertTrue(result)
+        self.assertEqual(
+            mock_run.call_args_list[0].args[0],
+            ["pkexec", "localectl", "set-locale", "LANG=pl_PL.UTF-8"],
+        )
+        self.assertEqual(
+            mock_run.call_args_list[1].args[0],
+            ["pkexec", "timedatectl", "set-timezone", "Europe/Warsaw"],
+        )
 
 
 class TestModuleConstants(unittest.TestCase):

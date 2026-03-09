@@ -11,6 +11,9 @@ sddm
 # App launcher
 fuzzel
 
+# Terminal
+foot
+
 # Status bar
 # waybar — or custom linta bar (TBD, see spec §7.3, §15)
 waybar

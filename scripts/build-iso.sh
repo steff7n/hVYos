@@ -33,7 +33,7 @@ usage() {
     echo ""
     echo "Requirements:"
     echo "  - Must be run as root (sudo)"
-    echo "  - Packages: lorax livecd-tools pykickstart anaconda"
+    echo "  - Packages: lorax pykickstart anaconda"
     echo "  - At least 10 GB free disk space"
     exit 1
 }

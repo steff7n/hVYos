@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -euo pipefail
 
 # Linta Linux — Package manifest validator
 # Checks that all packages listed in build/packages/*.txt exist
@@ -15,6 +15,11 @@ SKIP_COUNT=0
 echo "Linta Package Manifest Validator"
 echo "================================="
 echo ""
+
+if ! command -v dnf &>/dev/null; then
+    echo "Error: dnf not found. Install dnf before validating package manifests."
+    exit 1
+fi
 
 ALL_PKGS=()
 declare -A PKG_SOURCE
@@ -43,7 +48,10 @@ if [[ ${#ALL_PKGS[@]} -gt 0 ]]; then
     echo "Checking ${#UNIQUE_PKGS[@]} packages against Fedora repos..."
     echo ""
 
-    AVAIL_OUTPUT="$(dnf repoquery --available --queryformat '%{name}\n' "${UNIQUE_PKGS[@]}" 2>/dev/null | sort -u)"
+    if ! AVAIL_OUTPUT="$(dnf repoquery --available --queryformat '%{name}\n' "${UNIQUE_PKGS[@]}" 2>/dev/null | sort -u)"; then
+        echo "Error: dnf repoquery failed. Ensure Fedora repos are configured and repoquery is available."
+        exit 1
+    fi
 
     for pkg in "${UNIQUE_PKGS[@]}"; do
         if echo "${AVAIL_OUTPUT}" | grep -qx "${pkg}"; then

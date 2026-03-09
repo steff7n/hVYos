@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KS_DIR="${SCRIPT_DIR}/../kickstart"
+RELEASEVER="${RELEASEVER:-42}"
 FAIL=0
 
 echo "Linta Kickstart Validator"
@@ -29,7 +30,7 @@ for ks in "${KS_DIR}"/linta-*.ks; do
 
     # Flatten first, then validate
     tmpfile="$(mktemp)"
-    if ksflatten -c "${ks}" -o "${tmpfile}" 2>/dev/null; then
+    if ksflatten -c "${ks}" -o "${tmpfile}" --version "F${RELEASEVER}" 2>/dev/null; then
         if ksvalidator "${tmpfile}" 2>/dev/null; then
             echo "PASS"
         else

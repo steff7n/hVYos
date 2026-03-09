@@ -8,10 +8,7 @@ linta-welcome
 linta-flatpak-manager
 linta-keybindings
 linta-theme-kde
-linta-theme-niri-rice1
-linta-theme-niri-rice2
-linta-theme-niri-rice3
-linta-theme-niri-rice4
+linta-theme-niri
 linta-theme-sddm
 linta-theme-plymouth
 linta-config-zsh

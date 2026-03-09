@@ -71,6 +71,17 @@ def _get_root_uuid() -> str:
         return ""
 
 
+def _get_boot_artifact_names(boot_dir: Path = Path("/boot")) -> tuple[str, str]:
+    """Return the current kernel and initramfs filenames."""
+    kernels = sorted(path.name for path in boot_dir.glob("vmlinuz-*") if path.is_file())
+    initramfs = sorted(path.name for path in boot_dir.glob("initramfs-*.img") if path.is_file())
+
+    if not kernels or not initramfs:
+        raise RuntimeError("could not determine kernel/initramfs names for GRUB snapshots")
+
+    return kernels[-1], initramfs[-1]
+
+
 def cmd_list(args: argparse.Namespace) -> None:
     """List all Btrfs snapshots."""
     snapshots = _parse_snapper_list()
@@ -172,6 +183,7 @@ def _update_grub_entries() -> None:
     root_uuid = _get_root_uuid()
     if not root_uuid:
         raise RuntimeError("could not determine root filesystem UUID for GRUB snapshots")
+    kernel_name, initramfs_name = _get_boot_artifact_names()
 
     script_lines = [
         "#!/bin/bash",
@@ -188,9 +200,9 @@ def _update_grub_entries() -> None:
             f'  menuentry "Snapshot #{num}: {desc} ({date})" {{',
             f'    insmod btrfs',
             f'    search --no-floppy --fs-uuid --set=root {root_uuid}',
-            f'    linux /@/.snapshots/{num}/snapshot/vmlinuz root=UUID={root_uuid} '
+            f'    linux /@/.snapshots/{num}/snapshot/boot/{kernel_name} root=UUID={root_uuid} '
             f'rootflags=subvol=@/.snapshots/{num}/snapshot ro rhgb quiet',
-            f'    initrd /@/.snapshots/{num}/snapshot/initramfs.img',
+            f'    initrd /@/.snapshots/{num}/snapshot/boot/{initramfs_name}',
             f'  }}',
         ])
 

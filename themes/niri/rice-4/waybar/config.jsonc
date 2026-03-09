@@ -12,7 +12,7 @@
     "tooltip-format": "{:%Y-%m-%d | %H:%M:%S}"
   },
   "cpu": { "format": "  {usage}%" },
-  "memory": { "format": "  {}%" },
+  "memory": { "format": "  {percentage}%" },
   "pulseaudio": {
     "format": "{icon}  {volume}%",
     "format-muted": "  muted",

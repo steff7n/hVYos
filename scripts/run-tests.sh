@@ -15,7 +15,7 @@ FAILED=0
 run_test() {
     local name="$1"
     local script="$2"
-    ((TOTAL++))
+    ((TOTAL += 1))
 
     echo ""
     echo "[$TOTAL] ${name}"
@@ -27,10 +27,10 @@ run_test() {
     fi
 
     if "${script}"; then
-        ((PASSED++))
+        ((PASSED += 1))
         echo "  ✓ PASSED"
     else
-        ((FAILED++))
+        ((FAILED += 1))
         echo "  ✗ FAILED"
     fi
 }
