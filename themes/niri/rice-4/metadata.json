@@ -1,19 +1,19 @@
 {
   "name": "Ember",
-  "description": "High-contrast dark theme — deep charcoal with burnt orange accents",
+  "description": "Foundry — dense industrial grid, thick borders, volcanic palette",
   "profile": "niri",
   "colors": {
-    "bg": "#181818",
-    "bg_alt": "#242424",
-    "fg": "#f0f0f0",
-    "fg_dim": "#808080",
-    "accent": "#ff6600",
-    "accent2": "#cc3333",
-    "red": "#cc3333",
-    "green": "#98c379",
-    "yellow": "#e5c07b",
+    "bg": "#140c08",
+    "bg_alt": "#201410",
+    "fg": "#ece4dc",
+    "fg_dim": "#786858",
+    "accent": "#e85d26",
+    "accent2": "#b83030",
+    "red": "#b83030",
+    "green": "#8ab860",
+    "yellow": "#d4aa50",
     "blue": "#4a7a96",
-    "border_active": "#ff6600",
-    "border_inactive": "#333333"
+    "border_active": "#e85d26",
+    "border_inactive": "#2c1c14"
   }
 }

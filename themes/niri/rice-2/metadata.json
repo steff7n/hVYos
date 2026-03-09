@@ -1,19 +1,19 @@
 {
   "name": "Frost",
-  "description": "Cool, clean theme — dark base with ice blue accents",
+  "description": "Cryo lab — clinical precision, tight geometry, arctic palette",
   "profile": "niri",
   "colors": {
-    "bg": "#0d1117",
-    "bg_alt": "#161b22",
-    "fg": "#e6edf3",
-    "fg_dim": "#8b949e",
-    "accent": "#58a6ff",
-    "accent2": "#39d353",
-    "red": "#f85149",
-    "green": "#39d353",
-    "yellow": "#e3b341",
-    "blue": "#58a6ff",
-    "border_active": "#58a6ff",
-    "border_inactive": "#21262d"
+    "bg": "#080e16",
+    "bg_alt": "#101a24",
+    "fg": "#dce6f0",
+    "fg_dim": "#4a5c6e",
+    "accent": "#7ec8e3",
+    "accent2": "#44b89d",
+    "red": "#e8504a",
+    "green": "#44b89d",
+    "yellow": "#d4b84a",
+    "blue": "#5a8cba",
+    "border_active": "#7ec8e3",
+    "border_inactive": "#162028"
   }
 }

@@ -1,18 +1,16 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 34,
+  "height": 40,
   "spacing": 4,
   "modules-left": ["niri/workspaces", "niri/window"],
   "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+  "modules-right": ["pulseaudio", "network", "battery", "tray"],
   "clock": {
     "format": "{:%H:%M}",
     "format-alt": "{:%A, %B %d}",
     "tooltip-format": "{:%Y-%m-%d | %H:%M:%S}"
   },
-  "cpu": { "format": "  {usage}%" },
-  "memory": { "format": "  {}%" },
   "battery": {
     "format": "{icon}  {capacity}%",
     "format-icons": ["", "", "", "", ""]

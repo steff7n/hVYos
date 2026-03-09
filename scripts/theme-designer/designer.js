@@ -60,7 +60,9 @@ function loadPreset(name) {
   Object.assign(S.waybar, JSON.parse(JSON.stringify(p.waybar)));
   Object.assign(S.mako, JSON.parse(JSON.stringify(p.mako)));
   Object.assign(S.fuzzel, JSON.parse(JSON.stringify(p.fuzzel)));
-  S.modules = { left: ["workspaces","window"], center: ["clock"], right: ["volume","network","cpu","memory","battery","tray"] };
+  S.modules = p.modules
+    ? JSON.parse(JSON.stringify(p.modules))
+    : { left: ["workspaces","window"], center: ["clock"], right: ["volume","network","cpu","memory","battery","tray"] };
   document.getElementById('exportName').value = p.name.toLowerCase().replace(/\s+/g,'-');
   document.getElementById('exportDesc').value = p.description;
   syncControlsFromState();
@@ -217,6 +219,14 @@ function render() {
     `&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:${c.green}">width</span> <span style="color:${c.yellow}">${l.borderWidth}</span><br>` +
     `&nbsp;&nbsp;}<br>` +
     `}</div>`;
+
+  // Position toggle buttons above waybar when bar is at bottom
+  const toggles = document.querySelector('.overlay-toggles');
+  if (w.position === 'bottom') {
+    toggles.style.bottom = (w.height + w.borderWidth + 12) + 'px';
+  } else {
+    toggles.style.bottom = '12px';
+  }
 
   // Notification
   const notif = document.getElementById('notification');

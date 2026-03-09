@@ -1,19 +1,19 @@
 {
   "name": "Dusk",
-  "description": "Warm dark theme — deep navy with amber accents",
+  "description": "Floating lounge — warm windows hovering in amber-lit darkness",
   "profile": "niri",
   "colors": {
-    "bg": "#1a1b2e",
-    "bg_alt": "#232440",
-    "fg": "#c8c8d0",
-    "fg_dim": "#6e6e82",
-    "accent": "#e0a526",
-    "accent2": "#9580ff",
-    "red": "#ff5555",
-    "green": "#50fa7b",
-    "yellow": "#f1fa8c",
-    "blue": "#6272a4",
-    "border_active": "#e0a526",
-    "border_inactive": "#2a2b45"
+    "bg": "#1c1826",
+    "bg_alt": "#27223a",
+    "fg": "#ccc5d0",
+    "fg_dim": "#6a6478",
+    "accent": "#d4a04e",
+    "accent2": "#8b6cc0",
+    "red": "#e05252",
+    "green": "#50d880",
+    "yellow": "#e8d07a",
+    "blue": "#6878a8",
+    "border_active": "#d4a04e",
+    "border_inactive": "#302840"
   }
 }
