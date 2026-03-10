@@ -27,9 +27,9 @@ usage() {
     echo "Fedora version: defaults to ${FEDORA_VERSION}"
     echo ""
     echo "Examples:"
-    echo "  $0 kde           # Build KDE ISO with Fedora 42"
-    echo "  $0 niri 41       # Build Niri ISO with Fedora 41"
-    echo "  $0 bare          # Build Bare ISO"
+    echo "  $0 bare          # Build Bare ISO (Fedora 42)"
+    echo "  $0 kde           # Build KDE ISO (Fedora 42)"
+    echo "  $0 niri 41       # Build Niri ISO with Fedora 41 (override)"
     echo ""
     echo "Requirements:"
     echo "  - Must be run as root (sudo)"
@@ -95,6 +95,14 @@ ksflatten -c "${KICKSTART_FILE}" -o "${FLAT_KS}" \
 # Substitute $releasever in the flattened kickstart
 sed -i "s|\$releasever|${FEDORA_VERSION}|g" "${FLAT_KS}"
 
+if ! grep -q 'cp -a.*/usr/lib/modules.*vmlinuz' "${FLAT_KS}"; then
+    echo "Error: ksflatten dropped the vmlinuz/initramfs boot fix from the"
+    echo "       flattened kickstart. The resulting ISO would not boot."
+    echo "       Check that linta-base.ks boot-artifact %post uses no percent"
+    echo "       signs in shell expansion (pykickstart misparses them)."
+    exit 1
+fi
+
 echo "[2/4] Validating kickstart..."
 ksvalidator "${FLAT_KS}" || {
     echo "Warning: kickstart validation reported issues (may be non-fatal)"
@@ -107,6 +115,7 @@ echo ""
 livemedia-creator \
     --ks="${FLAT_KS}" \
     --no-virt \
+    --make-iso \
     --resultdir="${OUTPUT_DIR}" \
     --project="Linta" \
     --releasever="${FEDORA_VERSION}" \

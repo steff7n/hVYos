@@ -6,9 +6,8 @@
 # Spec reference: README.md §1–§4, §8.2, §11
 
 # --- Installation source ---
-# Fedora base repos — use explicit repo entries because livecd-tools on F42
-# does not convert `url --mirrorlist` into a DNF repo for image composition.
-repo --name=fedora --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
+# livemedia-creator --make-iso requires a url install method.
+url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$releasever&arch=$basearch
 repo --name=updates --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f$releasever&arch=$basearch
 
 # --- Locale & Input ---
@@ -31,17 +30,13 @@ user --name=linta --groups=wheel --plaintext --password=linta
 # --- Bootloader ---
 bootloader --timeout=5 --append="rhgb quiet"
 
-# --- Disk layout: Btrfs with @ and @home subvolumes (§3.1) ---
-# zstd compression, CoW enabled
+# --- Disk layout ---
+# Single root partition: lorax extracts everything from it to build the ISO.
+# Separate /boot/efi would put EFI files on a partition lorax can't reach.
+# The TUI installer does its own Btrfs+EFI layout on the real disk.
 zerombr
 clearpart --all --initlabel
-part /boot/efi --fstype=efi --size=512
-part /boot --fstype=ext4 --size=1024
-part btrfs.01 --fstype=btrfs --size=1 --grow
-
-btrfs none --label=linta --data=single btrfs.01
-btrfs /     --subvol --name=@ btrfs.01
-btrfs /home --subvol --name=@home btrfs.01
+part / --size=12000 --fstype=ext4
 
 # --- Services ---
 services --enabled=NetworkManager,firewalld,systemd-timesyncd,fstrim.timer
@@ -116,6 +111,11 @@ bc
 btrfs-progs
 snapper
 grub2-tools
+grub2-efi-x64
+grub2-efi-x64-modules
+grub2-pc-modules
+shim-x64
+efibootmgr
 firewalld
 NetworkManager
 NetworkManager-wifi
@@ -131,6 +131,7 @@ sudo
 
 # Misc system
 dracut
+dracut-live
 plymouth
 chrony
 
@@ -147,18 +148,11 @@ chrony
 %post --erroronfail
 
 # --- Btrfs mount options: add compress=zstd to fstab (§3.1) ---
-sed -i 's|subvol=@\b|subvol=@,compress=zstd:1|' /etc/fstab
-sed -i 's|subvol=@home\b|subvol=@home,compress=zstd:1|' /etc/fstab
-
-# --- Ensure vmlinuz + initramfs in /boot for livecd-creator (boot loop fix) ---
-for kver in /lib/modules/*/; do
-  kver="${kver#/lib/modules/}"
-  kver="${kver%/}"
-  [ "$kver" = "*" ] && break
-  [ -f "/usr/lib/modules/${kver}/vmlinuz" ] && [ ! -f "/boot/vmlinuz-${kver}" ] && \
-    cp -a "/usr/lib/modules/${kver}/vmlinuz" "/boot/vmlinuz-${kver}"
-  dracut -f --no-hostonly "/boot/initramfs-${kver}.img" "$kver" 2>/dev/null || true
-done
+# (skip on live ISO which uses ext4)
+if findmnt -n -o FSTYPE / | grep -q btrfs; then
+  sed -i 's|subvol=@\b|subvol=@,compress=zstd:1|' /etc/fstab
+  sed -i 's|subvol=@home\b|subvol=@home,compress=zstd:1|' /etc/fstab
+fi
 
 # --- Set zsh as default shell for new users (§8.2) ---
 sed -i 's|^SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd
@@ -168,7 +162,8 @@ chsh -s /bin/zsh linta 2>/dev/null || true
 echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel
 chmod 0440 /etc/sudoers.d/wheel
 
-# --- Weekly Btrfs scrub timer (maintenance) ---
+# --- Weekly Btrfs scrub timer (maintenance) — only on btrfs ---
+if findmnt -n -o FSTYPE / | grep -q btrfs; then
 cat > /etc/systemd/system/btrfs-scrub@.timer <<'UNIT'
 [Unit]
 Description=Weekly Btrfs scrub on %f
@@ -195,6 +190,7 @@ Nice=19
 UNIT
 
 systemctl enable btrfs-scrub@-.timer
+fi
 
 # --- Weekly fstrim (§3.9) — already enabled via services line above ---
 
@@ -223,7 +219,8 @@ UNIT
 
 systemctl enable linta-cache-prune.timer
 
-# --- Weekly Btrfs snapshot (§3.2): Monday 00:00 UTC ---
+# --- Weekly Btrfs snapshot (§3.2): Monday 00:00 UTC — only on btrfs ---
+if findmnt -n -o FSTYPE / | grep -q btrfs; then
 cat > /etc/systemd/system/linta-weekly-snapshot.timer <<'UNIT'
 [Unit]
 Description=Weekly Btrfs snapshot (Monday 00:00 UTC)
@@ -246,10 +243,11 @@ ExecStart=/usr/bin/snapper create --type=single --description="weekly-auto" --cl
 UNIT
 
 systemctl enable linta-weekly-snapshot.timer
+fi
 
-# --- Snapper config for root subvolume (§3.2) ---
-snapper -c root create-config / 2>/dev/null || true
-snapper -c root set-config "NUMBER_LIMIT=5" 2>/dev/null || true
+# --- Snapper config for root subvolume (§3.2) — only on btrfs ---
+findmnt -n -o FSTYPE / | grep -q btrfs && snapper -c root create-config / 2>/dev/null || true
+findmnt -n -o FSTYPE / | grep -q btrfs && snapper -c root set-config "NUMBER_LIMIT=5" 2>/dev/null || true
 
 # --- Disable root login (§4.2) ---
 passwd -l root
@@ -277,4 +275,22 @@ polkit.addRule(function(action, subject) {
 });
 RULES
 
+%end
+
+# =====================================================================
+# Boot artifacts — ensure vmlinuz + initramfs exist in /boot.
+# Kept in a separate %post section so ksflatten cannot silently drop it
+# (the previous inline version used shell parameter expansion with the
+# percent sign, which pykickstart mis-parses as a section delimiter).
+# =====================================================================
+%post
+for kdir in /lib/modules/*/; do
+  kver=$(basename "$kdir")
+  [ "$kver" = "*" ] && break
+  if [ -f "/usr/lib/modules/${kver}/vmlinuz" ] && [ ! -f "/boot/vmlinuz-${kver}" ]; then
+    cp -a "/usr/lib/modules/${kver}/vmlinuz" "/boot/vmlinuz-${kver}"
+  fi
+  [ -f "/boot/initramfs-${kver}.img" ] || \
+    dracut -f --no-hostonly "/boot/initramfs-${kver}.img" "$kver" 2>/dev/null || true
+done
 %end

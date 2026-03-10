@@ -6,7 +6,7 @@ set -euo pipefail
 
 WORKSPACE="/workspace"
 RPM_OUTPUT="${WORKSPACE}/build/output/rpms"
-ISO_OUTPUT="${WORKSPACE}/build/output/iso"
+ISO_OUTPUT="${LINTA_ISO_OUTPUT:-${WORKSPACE}/build/output/iso}"
 REPO_DIR="${WORKSPACE}/build/output/repo"
 
 cmd_help() {
@@ -136,12 +136,20 @@ cmd_build_iso() {
 
     echo "Building ISO: ${profile}"
     rm -rf "${ISO_OUTPUT}"
-    mkdir -p "$(dirname "${ISO_OUTPUT}")"
+    # livemedia-creator requires resultdir not to exist; it creates it
 
     local flat_ks
     flat_ks="$(mktemp)"
     ksflatten -c "${ks}" -o "${flat_ks}" --version F42
     sed -i 's|\$releasever|42|g' "${flat_ks}"
+
+    if ! grep -q 'cp -a.*/usr/lib/modules.*vmlinuz' "${flat_ks}"; then
+        echo "Error: ksflatten dropped the vmlinuz/initramfs boot fix from the"
+        echo "       flattened kickstart. The resulting ISO would not boot."
+        echo "       Check that linta-base.ks boot-artifact %post uses no percent"
+        echo "       signs in shell expansion (pykickstart misparses them)."
+        exit 1
+    fi
 
     # Add local Linta repo if it exists
     if [[ -d "${REPO_DIR}" ]] && ls "${REPO_DIR}"/*.rpm &>/dev/null; then
@@ -152,9 +160,10 @@ cmd_build_iso() {
     timestamp="$(date +%Y%m%d)"
     local iso_name="linta-${profile}-42-x86_64-${timestamp}.iso"
 
-    mkdir -p "${ISO_OUTPUT}" "${ISO_OUTPUT}/work-${profile}"
-
-    # Ensure enough loop devices exist
+    # livemedia-creator creates resultdir; --tmp must exist beforehand
+    mkdir -p "$(dirname "${ISO_OUTPUT}")" "$(dirname "${ISO_OUTPUT}")/work-${profile}"
+    # Ensure loop module is loaded and enough loop devices exist
+    modprobe loop 2>/dev/null || true
     for i in $(seq 0 15); do
         [[ -b "/dev/loop${i}" ]] || mknod -m 0660 "/dev/loop${i}" b 7 "${i}" 2>/dev/null || true
     done
@@ -162,14 +171,15 @@ cmd_build_iso() {
     livemedia-creator \
         --ks="${flat_ks}" \
         --no-virt \
+        --make-iso \
         --resultdir="${ISO_OUTPUT}" \
         --project="Linta" \
         --releasever="42" \
         --volid="Linta-${profile}-42-${timestamp}" \
         --iso-only \
         --iso-name="${iso_name}" \
-        --tmp="${ISO_OUTPUT}/work-${profile}" \
-        2>&1 | tee "${ISO_OUTPUT}/build-${profile}.log"
+        --tmp="$(dirname "${ISO_OUTPUT}")/work-${profile}" \
+        2>&1 | tee "$(dirname "${ISO_OUTPUT}")/build-${profile}.log"
 
     rm -f "${flat_ks}"
 

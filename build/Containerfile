@@ -15,10 +15,11 @@ RUN dnf install -y \
     rpmlint \
     mock \
     createrepo_c \
-    # ISO build tools
+    # ISO build tools (anaconda-tui required for livemedia-creator --no-virt)
     lorax \
     livecd-tools \
     pykickstart \
+    anaconda-tui \
     # Rust toolchain (for niri, helix)
     cargo \
     rust \

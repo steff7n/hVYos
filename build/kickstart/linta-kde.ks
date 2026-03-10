@@ -96,13 +96,19 @@ systemctl set-default graphical.target
 systemctl enable sddm.service
 
 # Enable PipeWire for all users via systemd user units
-# (PipeWire ships its own user units, just need to make sure they're enabled)
 mkdir -p /etc/skel/.config/systemd/user/default.target.wants
 ln -sf /usr/lib/systemd/user/pipewire.socket /etc/skel/.config/systemd/user/default.target.wants/pipewire.socket
 ln -sf /usr/lib/systemd/user/wireplumber.service /etc/skel/.config/systemd/user/default.target.wants/wireplumber.service
 
+# The linta user was created before %post, so /etc/skel changes don't apply to it
+mkdir -p /home/linta/.config/systemd/user/default.target.wants
+ln -sf /usr/lib/systemd/user/pipewire.socket /home/linta/.config/systemd/user/default.target.wants/pipewire.socket
+ln -sf /usr/lib/systemd/user/wireplumber.service /home/linta/.config/systemd/user/default.target.wants/wireplumber.service
+chown -R linta:linta /home/linta/.config
+
 # Configure Flatpak with Flathub (§2.3)
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+# Non-fatal: network may not be available inside the build chroot
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
 
 # Force Wayland session as default for SDDM
 mkdir -p /etc/sddm.conf.d
