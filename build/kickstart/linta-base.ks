@@ -28,7 +28,7 @@ rootpw --lock
 user --name=linta --groups=wheel --plaintext --password=linta
 
 # --- Bootloader ---
-bootloader --timeout=5 --append="rhgb quiet"
+bootloader --timeout=5 --append="rhgb quiet console=ttyS0,115200n8"
 
 # --- Disk layout ---
 # Single root partition: lorax extracts everything from it to build the ISO.
@@ -113,6 +113,7 @@ snapper
 grub2-tools
 grub2-efi-x64
 grub2-efi-x64-modules
+grub2-efi-x64-cdboot
 grub2-pc-modules
 shim-x64
 efibootmgr

@@ -172,6 +172,7 @@ cmd_build_iso() {
         --ks="${flat_ks}" \
         --no-virt \
         --make-iso \
+        --extra-boot-args "console=ttyS0,115200n8" \
         --resultdir="${ISO_OUTPUT}" \
         --project="Linta" \
         --releasever="42" \
